@@ -10,11 +10,11 @@ interface PackageJson {
 }
 
 describe('the package', () => {
-  it('is still private, has no runtime dependency, and has the organiseyou command', async () => {
+  it('is public, has no runtime dependency, and has the organiseyou command', async () => {
     const pkg = JSON.parse(
       await readFile(new URL('../../package.json', import.meta.url), 'utf8'),
     ) as PackageJson;
-    expect(pkg.private).toBe(true);
+    expect(pkg.private).toBe(false);
     expect(pkg.dependencies).toBeUndefined();
     expect(pkg.peerDependencies).toBeUndefined();
     expect(pkg.optionalDependencies).toBeUndefined();
