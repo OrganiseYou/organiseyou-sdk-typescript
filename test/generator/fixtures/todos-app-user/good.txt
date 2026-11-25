@@ -1,0 +1,30 @@
+import type { OrganiseYou } from '@organiseyou/sdk';
+import { createApi, type Todos, type TodosInput, type TodosUpdate } from './organiseyou/index.js';
+
+declare const oy: OrganiseYou;
+const api = createApi(oy);
+
+type Equal<A, B> = (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2 ? true : false;
+
+// create returns a promise of the typed record
+const created: Promise<Todos> = api.todos.create({ title: 'x' });
+export const createIsTyped: Equal<ReturnType<typeof api.todos.create>, Promise<Todos>> = true;
+
+export async function useIt(): Promise<void> {
+  const input: TodosInput = { title: 'Buy milk', done: false, assigned_to: ['usr_1'] };
+  const todo = await api.todos.create(input);
+  const id: string = todo.id;
+  const title: string | null | undefined = todo.title;
+  const patch: TodosUpdate = { done: true, title: null };
+  await api.todos.update(id, patch);
+  await api.todos.delete(id);
+  const page = await api.todos.list({ page: 1, perPage: 10 });
+  const first: Todos | undefined = page.items[0];
+  for await (const record of api.todos.all({ perPage: 50 })) {
+    const again: Todos = record;
+    void again;
+  }
+  const report = await api.reports.get(id);
+  const reportTitle: string | null | undefined = report.title;
+  void [created, title, first, reportTitle];
+}

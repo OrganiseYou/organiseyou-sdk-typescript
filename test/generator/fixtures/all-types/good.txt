@@ -1,0 +1,32 @@
+import type { OrganiseYou } from '@organiseyou/sdk';
+import { createApi, type Everything, type EverythingInput } from './organiseyou/index.js';
+
+declare const oy: OrganiseYou;
+const api = createApi(oy);
+
+export async function useIt(): Promise<void> {
+  const input: EverythingInput = {
+    string: 'a',
+    integer: 1,
+    decimal: '1.50',
+    boolean: true,
+    datetime: '2026-01-01T10:00:00.000000Z',
+    many_to_one: '00000000-0000-4000-8000-000000000001',
+    text_area: 'a',
+    long_text: 'a',
+    url: 'https://app.example.test',
+    email: 'user@example.test',
+    phone: '+310000000',
+    rich_text: '<p>a</p>',
+    currency: '9.99',
+    percent: '12.5',
+    date: '2026-01-01',
+    time: '10:00',
+    assigned_to: ['usr_1'],
+  };
+  const created: Everything = await api.everything.create(input);
+  const count: number | null | undefined = created.integer;
+  const related: string[] | null | undefined = created.one_to_many;
+  const flag: boolean | null | undefined = created.boolean;
+  void [count, related, flag];
+}

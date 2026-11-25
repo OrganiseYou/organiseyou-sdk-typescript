@@ -35,3 +35,11 @@ stays at `0.x` until its first public release: until then the public interface m
 - `npm run e2e -- --base-url <address>`, a check by hand against a local OrganiseYou: two people, a confirmation link
   from the local Mailpit, and a record created, listed, updated and deleted. It refuses an address that is not on this
   machine.
+- The generator: `organiseyou generate` (a `bin`, with no runtime dependency) turns an organization's `openapi.json`
+  into `models.ts`, `endpoints.ts`, `index.ts` and a manifest. From `--input`, or `--url` with `--token-env` or
+  `--login`; `--save` keeps the fetched document; `--check` writes nothing and exits with 1 when the code is out of
+  date. There is no option for a token or a password. A wrong field name, a missing required field, a call an endpoint
+  does not have and a read-only field in an update fail to compile.
+- Safe regeneration: every file starts with a generated line, the folder is refused when it holds a file that is not
+  generated, unchanged files are not rewritten, and the generated files of an endpoint that is gone are deleted. No
+  token, password or e-mail address is ever written.

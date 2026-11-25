@@ -1,0 +1,7 @@
+import type { OrganiseYou } from '@organiseyou/sdk';
+import { createApi } from './organiseyou/index.js';
+
+declare const oy: OrganiseYou;
+const api = createApi(oy);
+
+void api.todos.create({ titel: 'x' }); // expect: TS2561 Did you mean to write 'title'
