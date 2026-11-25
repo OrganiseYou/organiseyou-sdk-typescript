@@ -105,18 +105,25 @@ lint, typecheck, test, conformance and gitleaks. Do not merge a pull request whi
 
 ## Publishing a release on npm
 
-The package lives on npm as `@organiseyou/sdk`, in the `organiseyou` organisation. Publishing is done by hand, from
-your own computer:
+The package lives on npm as `@organiseyou/sdk`, in the `organiseyou` organisation. A release is published by the
+`Release` workflow (`.github/workflows/release.yml`) when a version tag is pushed. No npm token is stored anywhere:
+npm trusts that workflow in this repository, and attaches a provenance statement that links the published files to
+the run.
 
-1. Set the new `version` in `package.json` and move the lines under `## Unreleased` in `CHANGELOG.md` to a heading
-   with that version and today's date.
-2. Run `npm run build`, then `npm publish --dry-run` and read the file list: only `dist`, `README.md`, `CHANGELOG.md`,
-   `LICENSE` and `package.json` belong in it.
-3. Run `npm publish`. The package is public because `publishConfig.access` says so.
+1. In a pull request: set the new `version` in `package.json` and move the lines under `## Unreleased` in
+   `CHANGELOG.md` to a heading with that version and today's date. Merge it.
+2. On the merged `main`: `git tag v<version>` and `git push origin v<version>`.
+3. The workflow waits for an approval in the environment `npm`. After the approval it checks that the tag,
+   `package.json` and `CHANGELOG.md` name the same version, runs every check, shows the file list and publishes.
 
 A published version can never be changed or reused: a mistake needs a new version number.
 
-npm refuses to publish (`403 Forbidden - Two-factor authentication ... is required`) when your npm account has no
-two-factor authentication. Turn it on once with `npm profile enable-2fa auth-and-writes`; after that `npm publish`
-asks for the six-digit code from your authenticator app. `npm whoami` shows who you are signed in as, and
-`npm org ls organiseyou` shows whether you may publish for the organisation.
+This needs two things set up once, outside the repository:
+
+- On npmjs.com, in the package's settings under "Trusted publishing": GitHub Actions, organisation `OrganiseYou`,
+  repository `organiseyou-sdk-typescript`, workflow filename `release.yml`, environment `npm`, with `npm publish`
+  allowed.
+- On GitHub, an environment named `npm` with required reviewers.
+
+Publishing by hand from your own computer still works (`npm run build`, `npm publish --dry-run`, `npm publish`), but
+such a version carries no provenance.
