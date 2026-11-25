@@ -15,3 +15,12 @@ stays at `0.x` until its first public release: until then the public interface m
   `10.0.2.2`. Redirects are never followed.
 - `OrganiseYouError`, the one error of the package, with `kind`, `status`, `code`, `message`, `fieldErrors`,
   `retryAfterSeconds` and `rateLimit`; `oy.lastRateLimit`.
+- The session: `oy.session` with `state`, `onChange(listener)` and `restore()`, and the sign-out reasons `none`,
+  `signedOut` and `sessionEnded`.
+- `oy.auth`: `signIn`, `signOut`, `register`, `forgotPassword`, `resetPassword`, `me` and `resetTokenFrom(url)`.
+- Token stores: `TokenStore`, `StoredSession`, `MemoryTokenStore` (the default) and `SessionStorageTokenStore`, which
+  keeps only the refresh token, the scope and the user's name and address in `sessionStorage`. Nothing is written to
+  `localStorage`.
+- One refresh, however many calls need it: the access token is renewed a minute before it ends, and once after a `401`.
+  The new tokens are saved before any waiting call goes on, and a refresh token is never sent twice.
+- Every call takes an optional `signal` to cancel it.
