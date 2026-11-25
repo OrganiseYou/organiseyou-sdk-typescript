@@ -1,0 +1,27 @@
+{
+    "id": "get-not-found",
+    "description": "A record that is not the caller's answers the same 404 as one that does not exist.",
+    "synthetic": false,
+    "request": {
+        "method": "GET",
+        "path": "/rest/todos/record/00000000-0000-4000-8000-000000000011",
+        "query": {},
+        "headers": {
+            "Authorization": "Bearer oyo_exchange_a1"
+        }
+    },
+    "response": {
+        "status": 404,
+        "headers": {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-cache, private",
+            "RateLimit-Limit": "120",
+            "RateLimit-Remaining": "107",
+            "RateLimit-Reset": "60"
+        },
+        "body": {
+            "error": "not_found",
+            "message": "Not found."
+        }
+    }
+}

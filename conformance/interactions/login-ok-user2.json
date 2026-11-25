@@ -1,0 +1,36 @@
+{
+    "id": "login-ok-user2",
+    "description": "The sign-in of a second person, whose records are not the first one's.",
+    "synthetic": false,
+    "request": {
+        "method": "POST",
+        "path": "/auth/token",
+        "query": {},
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": {
+            "identifier": "bob@example.test",
+            "password": "exchange-password-1"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-store, private"
+        },
+        "body": {
+            "access_token": "oyo_exchange_b1",
+            "token_type": "Bearer",
+            "expires_in": 1800,
+            "refresh_token": "oyr_exchange_q1",
+            "scope": "rest:read rest:write graphql:read graphql:write",
+            "user": {
+                "id": "usr_2",
+                "name": "Bob Builder",
+                "email": "bob@example.test"
+            }
+        }
+    }
+}

@@ -1,0 +1,32 @@
+{
+    "id": "get-ok",
+    "description": "One record by id.",
+    "synthetic": false,
+    "request": {
+        "method": "GET",
+        "path": "/rest/todos/record/00000000-0000-4000-8000-000000000001",
+        "query": {},
+        "headers": {
+            "Authorization": "Bearer oyo_exchange_a1"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-cache, private",
+            "RateLimit-Limit": "120",
+            "RateLimit-Remaining": "108",
+            "RateLimit-Reset": "60"
+        },
+        "body": {
+            "id": "00000000-0000-4000-8000-000000000001",
+            "title": "Buy milk",
+            "done": false,
+            "number": "1",
+            "assigned_to": [
+                "usr_1"
+            ]
+        }
+    }
+}

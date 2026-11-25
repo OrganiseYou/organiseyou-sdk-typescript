@@ -1,0 +1,43 @@
+{
+    "id": "get",
+    "description": "One record by id.",
+    "now": "2026-01-01T10:00:00Z",
+    "start": {
+        "session": "stored",
+        "accessToken": "oyo_exchange_a1",
+        "accessTokenEndsAt": "2026-01-01T10:30:00Z",
+        "refreshToken": "oyr_exchange_r1",
+        "scope": "rest:read rest:write graphql:read graphql:write",
+        "user": {
+            "id": "usr_1",
+            "name": "Ada Lovelace",
+            "email": "ada@example.test"
+        }
+    },
+    "steps": [
+        {
+            "do": "records.get",
+            "args": {
+                "endpoint": "todos",
+                "id": "00000000-0000-4000-8000-000000000001"
+            },
+            "calls": [
+                "get-ok"
+            ],
+            "expect": {
+                "result": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "title": "Buy milk",
+                    "done": false,
+                    "number": "1",
+                    "assigned_to": [
+                        "usr_1"
+                    ]
+                }
+            }
+        }
+    ],
+    "serves": {
+        "get-ok": 1
+    }
+}

@@ -1,0 +1,33 @@
+{
+    "id": "not-json-answer",
+    "description": "A 200 whose body is not JSON is a decoding error.",
+    "now": "2026-01-01T10:00:00Z",
+    "start": {
+        "session": "stored",
+        "accessToken": "oyo_exchange_a12",
+        "accessTokenEndsAt": "2026-01-01T10:30:00Z",
+        "refreshToken": "oyr_exchange_r12",
+        "scope": "rest:read rest:write graphql:read graphql:write",
+        "user": {
+            "id": "usr_1",
+            "name": "Ada Lovelace",
+            "email": "ada@example.test"
+        }
+    },
+    "steps": [
+        {
+            "do": "auth.me",
+            "calls": [
+                "not-json-200"
+            ],
+            "expect": {
+                "error": {
+                    "kind": "decoding"
+                }
+            }
+        }
+    ],
+    "serves": {
+        "not-json-200": 1
+    }
+}

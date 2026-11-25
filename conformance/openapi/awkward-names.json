@@ -1,0 +1,2692 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "OrganiseYou API",
+        "version": "1.0.0",
+        "description": "The REST API of one organization: how to sign in, and the endpoints you may use. Every call needs a credential."
+    },
+    "servers": [
+        {
+            "url": "https://api.example.test/api/acme",
+            "description": "This organization's API"
+        }
+    ],
+    "tags": [
+        {
+            "name": "Authentication",
+            "description": "Sign in, sign out, register and reset a password."
+        },
+        {
+            "name": "Application",
+            "description": "Who is signed in."
+        },
+        {
+            "name": "2024 goals",
+            "description": "Records of the endpoint \"2024 goals\".",
+            "x-organiseyou-endpoint": "2024 goals"
+        },
+        {
+            "name": "class",
+            "description": "Records of the endpoint \"class\".",
+            "x-organiseyou-endpoint": "class"
+        },
+        {
+            "name": "my-todos",
+            "description": "Records of the endpoint \"my-todos\".",
+            "x-organiseyou-endpoint": "my-todos"
+        },
+        {
+            "name": "my todos",
+            "description": "Records of the endpoint \"my todos\".",
+            "x-organiseyou-endpoint": "my todos"
+        }
+    ],
+    "paths": {
+        "/auth/token": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "operationId": "signIn",
+                "summary": "Sign in with an e-mail address and password, or refresh a sign-in.",
+                "description": "JSON or form body. Send {\"identifier\", \"password\"} to sign in, or {\"grant_type\": \"refresh_token\", \"refresh_token\"} to refresh: a new pair is issued and the old refresh token is spent. Use the access_token as \"Authorization: Bearer <access_token>\". Throttled per address and per IP address.",
+                "security": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/LoginRequest"
+                                    },
+                                    {
+                                        "$ref": "#/components/schemas/RefreshRequest"
+                                    }
+                                ]
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/LoginRequest"
+                                    },
+                                    {
+                                        "$ref": "#/components/schemas/RefreshRequest"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The tokens.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TokenAnswer"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The body is not valid.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "examples": {
+                                    "invalid_request": {
+                                        "value": {
+                                            "error": "invalid_request",
+                                            "message": "Send the e-mail address as \"identifier\"."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Wrong credentials, or a refresh token that is spent, expired or not valid. The answer is the same for an unknown address, a wrong password and a person who is not a member.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "examples": {
+                                    "invalid_credentials": {
+                                        "value": {
+                                            "error": "invalid_credentials",
+                                            "message": "Invalid e-mail address or password."
+                                        }
+                                    },
+                                    "email_not_verified": {
+                                        "value": {
+                                            "error": "email_not_verified",
+                                            "message": "The e-mail address has not been verified yet."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No such organization.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            }
+        },
+        "/auth/revoke": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "operationId": "signOut",
+                "summary": "Sign out: end the sign-in of an access token or refresh token.",
+                "description": "Always answers 200 with an empty object, also for a token that is unknown or not of this organization.",
+                "security": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RevokeRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RevokeRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Signed out.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No such organization.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/register": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "operationId": "register",
+                "summary": "Register as a person of this organization's application.",
+                "description": "Answers 202 for every address, known or not. The person follows the link in the e-mail, then signs in. Do not send a field named \"website\".",
+                "security": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RegisterRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RegisterRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "The e-mail with the link is on its way.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "verification_sent"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "status"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The body is not valid.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "examples": {
+                                    "invalid_request": {
+                                        "value": {
+                                            "error": "invalid_request",
+                                            "message": "Send \"name\", \"identifier\" (the e-mail address) and \"password\" as text."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "The organization does not take registrations.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "examples": {
+                                    "registration_closed": {
+                                        "value": {
+                                            "error": "registration_closed",
+                                            "message": "Registration is closed for this application."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No such organization.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "A value is not valid.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "examples": {
+                                    "validation_failed": {
+                                        "value": {
+                                            "error": "validation_failed",
+                                            "message": "The password must be at least 8 characters.",
+                                            "errors": {
+                                                "password": [
+                                                    "The password must be at least 8 characters."
+                                                ]
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            }
+        },
+        "/auth/password/forgot": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "operationId": "forgotPassword",
+                "summary": "Ask for a link to set a new password.",
+                "description": "Answers 202 for every address. The e-mail goes only to an address the organization allows. The redirect_url must be one the organization allows.",
+                "security": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ForgotPasswordRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ForgotPasswordRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "The request is taken.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "reset_sent"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "status"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The body is not valid, or the organization allows no reset link to this address.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "examples": {
+                                    "invalid_request": {
+                                        "value": {
+                                            "error": "invalid_request",
+                                            "message": "Send \"identifier\" (the e-mail address) and \"redirect_url\" as text."
+                                        }
+                                    },
+                                    "invalid_redirect": {
+                                        "value": {
+                                            "error": "invalid_redirect",
+                                            "message": "This organization allows no password reset to this address."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No such organization.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            }
+        },
+        "/auth/password/reset": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "operationId": "resetPassword",
+                "summary": "Set a new password with the token of the e-mail.",
+                "description": "The token works once and ends after 30 minutes. A reset ends every sign-in of the person.",
+                "security": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ResetPasswordRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ResetPasswordRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The password is set.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "password_reset"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "status"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The body is not valid.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "examples": {
+                                    "invalid_request": {
+                                        "value": {
+                                            "error": "invalid_request",
+                                            "message": "Send \"token\" and \"password\" as text."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "The token is not valid, is used or has ended. Ask for a new link.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "examples": {
+                                    "invalid_token": {
+                                        "value": {
+                                            "error": "invalid_token",
+                                            "message": "This password reset link is not valid or has expired. Ask for a new one."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No such organization.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The new password is not valid.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "examples": {
+                                    "validation_failed": {
+                                        "value": {
+                                            "error": "validation_failed",
+                                            "message": "The password must be at least 8 characters.",
+                                            "errors": {
+                                                "password": [
+                                                    "The password must be at least 8 characters."
+                                                ]
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            }
+        },
+        "/rest/me": {
+            "get": {
+                "tags": [
+                    "Application"
+                ],
+                "operationId": "getMe",
+                "summary": "The signed-in user, their organization, role and token expiry.",
+                "description": "For a user token (from the login or the authorization-code flow). A machine credential has no user: 403 user_token_required.",
+                "security": [
+                    {
+                        "bearer": []
+                    },
+                    {
+                        "apiKey": []
+                    },
+                    {
+                        "oauth2": [
+                            "rest:read"
+                        ]
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The user of this token.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Me"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "description": "A machine credential has no user profile (user_token_required).",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "user_token_required"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            }
+        },
+        "/rest/2024%20goals/records": {
+            "get": {
+                "tags": [
+                    "2024 goals"
+                ],
+                "x-organiseyou-endpoint": "2024 goals",
+                "operationId": "list2024GoalsRecords",
+                "summary": "List the records of 2024 goals.",
+                "description": "A page of records. Only the fields this endpoint maps are returned.",
+                "security": [
+                    {
+                        "bearer": []
+                    },
+                    {
+                        "apiKey": []
+                    },
+                    {
+                        "oauth2": [
+                            "rest:read"
+                        ]
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "description": "The page number, from 1.",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "perPage",
+                        "in": "query",
+                        "required": false,
+                        "description": "Records per page. More than the maximum is a 400.",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 200,
+                            "default": 50
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A page of records.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/2024GoalsList"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            }
+        },
+        "/rest/2024%20goals/record/{id}": {
+            "get": {
+                "tags": [
+                    "2024 goals"
+                ],
+                "x-organiseyou-endpoint": "2024 goals",
+                "operationId": "get2024GoalsRecord",
+                "summary": "Get one record of 2024 goals.",
+                "security": [
+                    {
+                        "bearer": []
+                    },
+                    {
+                        "apiKey": []
+                    },
+                    {
+                        "oauth2": [
+                            "rest:read"
+                        ]
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The id of the record.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The record.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/2024Goals"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "2024 goals"
+                ],
+                "x-organiseyou-endpoint": "2024 goals",
+                "operationId": "update2024GoalsRecord",
+                "summary": "Change a record of 2024 goals.",
+                "description": "Send only the fields to change; the others keep their value. A read-only field is a 422.",
+                "security": [
+                    {
+                        "bearer": []
+                    },
+                    {
+                        "apiKey": []
+                    },
+                    {
+                        "oauth2": [
+                            "rest:write"
+                        ]
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The id of the record.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/2024GoalsUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The record as it is now.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/2024Goals"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationFailed"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "2024 goals"
+                ],
+                "x-organiseyou-endpoint": "2024 goals",
+                "operationId": "delete2024GoalsRecord",
+                "summary": "Delete a record of 2024 goals.",
+                "security": [
+                    {
+                        "bearer": []
+                    },
+                    {
+                        "apiKey": []
+                    },
+                    {
+                        "oauth2": [
+                            "rest:write"
+                        ]
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The id of the record.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The record is deleted. The body is empty."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            }
+        },
+        "/rest/2024%20goals/record": {
+            "post": {
+                "tags": [
+                    "2024 goals"
+                ],
+                "x-organiseyou-endpoint": "2024 goals",
+                "operationId": "create2024GoalsRecord",
+                "summary": "Create a record of 2024 goals.",
+                "description": "Answers 201 with the new record: its id and the values you sent. When the endpoint has an assigned-to field, the answer also holds who the record is assigned to: you, unless you are an owner, an admin or an API key who named someone else or nobody.",
+                "security": [
+                    {
+                        "bearer": []
+                    },
+                    {
+                        "apiKey": []
+                    },
+                    {
+                        "oauth2": [
+                            "rest:write"
+                        ]
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/2024GoalsInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The record is created.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/2024Goals"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationFailed"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            }
+        },
+        "/rest/class/records": {
+            "get": {
+                "tags": [
+                    "class"
+                ],
+                "x-organiseyou-endpoint": "class",
+                "operationId": "listClassRecords",
+                "summary": "List the records of class.",
+                "description": "A page of records. Only the fields this endpoint maps are returned.",
+                "security": [
+                    {
+                        "bearer": []
+                    },
+                    {
+                        "apiKey": []
+                    },
+                    {
+                        "oauth2": [
+                            "rest:read"
+                        ]
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "description": "The page number, from 1.",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "perPage",
+                        "in": "query",
+                        "required": false,
+                        "description": "Records per page. More than the maximum is a 400.",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 200,
+                            "default": 50
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A page of records.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ClassList"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            }
+        },
+        "/rest/class/record/{id}": {
+            "get": {
+                "tags": [
+                    "class"
+                ],
+                "x-organiseyou-endpoint": "class",
+                "operationId": "getClassRecord",
+                "summary": "Get one record of class.",
+                "security": [
+                    {
+                        "bearer": []
+                    },
+                    {
+                        "apiKey": []
+                    },
+                    {
+                        "oauth2": [
+                            "rest:read"
+                        ]
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The id of the record.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The record.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Class"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "class"
+                ],
+                "x-organiseyou-endpoint": "class",
+                "operationId": "updateClassRecord",
+                "summary": "Change a record of class.",
+                "description": "Send only the fields to change; the others keep their value. A read-only field is a 422.",
+                "security": [
+                    {
+                        "bearer": []
+                    },
+                    {
+                        "apiKey": []
+                    },
+                    {
+                        "oauth2": [
+                            "rest:write"
+                        ]
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The id of the record.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ClassUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The record as it is now.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Class"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationFailed"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "class"
+                ],
+                "x-organiseyou-endpoint": "class",
+                "operationId": "deleteClassRecord",
+                "summary": "Delete a record of class.",
+                "security": [
+                    {
+                        "bearer": []
+                    },
+                    {
+                        "apiKey": []
+                    },
+                    {
+                        "oauth2": [
+                            "rest:write"
+                        ]
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The id of the record.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The record is deleted. The body is empty."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            }
+        },
+        "/rest/class/record": {
+            "post": {
+                "tags": [
+                    "class"
+                ],
+                "x-organiseyou-endpoint": "class",
+                "operationId": "createClassRecord",
+                "summary": "Create a record of class.",
+                "description": "Answers 201 with the new record: its id and the values you sent. When the endpoint has an assigned-to field, the answer also holds who the record is assigned to: you, unless you are an owner, an admin or an API key who named someone else or nobody.",
+                "security": [
+                    {
+                        "bearer": []
+                    },
+                    {
+                        "apiKey": []
+                    },
+                    {
+                        "oauth2": [
+                            "rest:write"
+                        ]
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ClassInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The record is created.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Class"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationFailed"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            }
+        },
+        "/rest/my-todos/records": {
+            "get": {
+                "tags": [
+                    "my-todos"
+                ],
+                "x-organiseyou-endpoint": "my-todos",
+                "operationId": "listMyTodosRecords",
+                "summary": "List the records of my-todos.",
+                "description": "A page of records. Only the fields this endpoint maps are returned.",
+                "security": [
+                    {
+                        "bearer": []
+                    },
+                    {
+                        "apiKey": []
+                    },
+                    {
+                        "oauth2": [
+                            "rest:read"
+                        ]
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "description": "The page number, from 1.",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "perPage",
+                        "in": "query",
+                        "required": false,
+                        "description": "Records per page. More than the maximum is a 400.",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 200,
+                            "default": 50
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A page of records.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MyTodosList"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            }
+        },
+        "/rest/my-todos/record/{id}": {
+            "get": {
+                "tags": [
+                    "my-todos"
+                ],
+                "x-organiseyou-endpoint": "my-todos",
+                "operationId": "getMyTodosRecord",
+                "summary": "Get one record of my-todos.",
+                "security": [
+                    {
+                        "bearer": []
+                    },
+                    {
+                        "apiKey": []
+                    },
+                    {
+                        "oauth2": [
+                            "rest:read"
+                        ]
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The id of the record.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The record.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MyTodos"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "my-todos"
+                ],
+                "x-organiseyou-endpoint": "my-todos",
+                "operationId": "updateMyTodosRecord",
+                "summary": "Change a record of my-todos.",
+                "description": "Send only the fields to change; the others keep their value. A read-only field is a 422.",
+                "security": [
+                    {
+                        "bearer": []
+                    },
+                    {
+                        "apiKey": []
+                    },
+                    {
+                        "oauth2": [
+                            "rest:write"
+                        ]
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The id of the record.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MyTodosUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The record as it is now.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MyTodos"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationFailed"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "my-todos"
+                ],
+                "x-organiseyou-endpoint": "my-todos",
+                "operationId": "deleteMyTodosRecord",
+                "summary": "Delete a record of my-todos.",
+                "security": [
+                    {
+                        "bearer": []
+                    },
+                    {
+                        "apiKey": []
+                    },
+                    {
+                        "oauth2": [
+                            "rest:write"
+                        ]
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The id of the record.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The record is deleted. The body is empty."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            }
+        },
+        "/rest/my-todos/record": {
+            "post": {
+                "tags": [
+                    "my-todos"
+                ],
+                "x-organiseyou-endpoint": "my-todos",
+                "operationId": "createMyTodosRecord",
+                "summary": "Create a record of my-todos.",
+                "description": "Answers 201 with the new record: its id and the values you sent. When the endpoint has an assigned-to field, the answer also holds who the record is assigned to: you, unless you are an owner, an admin or an API key who named someone else or nobody.",
+                "security": [
+                    {
+                        "bearer": []
+                    },
+                    {
+                        "apiKey": []
+                    },
+                    {
+                        "oauth2": [
+                            "rest:write"
+                        ]
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MyTodosInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The record is created.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MyTodos"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationFailed"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            }
+        },
+        "/rest/my%20todos/records": {
+            "get": {
+                "tags": [
+                    "my todos"
+                ],
+                "x-organiseyou-endpoint": "my todos",
+                "operationId": "listMyTodos2Records",
+                "summary": "List the records of my todos.",
+                "description": "A page of records. Only the fields this endpoint maps are returned.",
+                "security": [
+                    {
+                        "bearer": []
+                    },
+                    {
+                        "apiKey": []
+                    },
+                    {
+                        "oauth2": [
+                            "rest:read"
+                        ]
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "description": "The page number, from 1.",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "perPage",
+                        "in": "query",
+                        "required": false,
+                        "description": "Records per page. More than the maximum is a 400.",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 200,
+                            "default": 50
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A page of records.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MyTodos2List"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            }
+        },
+        "/rest/my%20todos/record/{id}": {
+            "get": {
+                "tags": [
+                    "my todos"
+                ],
+                "x-organiseyou-endpoint": "my todos",
+                "operationId": "getMyTodos2Record",
+                "summary": "Get one record of my todos.",
+                "security": [
+                    {
+                        "bearer": []
+                    },
+                    {
+                        "apiKey": []
+                    },
+                    {
+                        "oauth2": [
+                            "rest:read"
+                        ]
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The id of the record.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The record.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MyTodos2"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "my todos"
+                ],
+                "x-organiseyou-endpoint": "my todos",
+                "operationId": "updateMyTodos2Record",
+                "summary": "Change a record of my todos.",
+                "description": "Send only the fields to change; the others keep their value. A read-only field is a 422.",
+                "security": [
+                    {
+                        "bearer": []
+                    },
+                    {
+                        "apiKey": []
+                    },
+                    {
+                        "oauth2": [
+                            "rest:write"
+                        ]
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The id of the record.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MyTodos2Update"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The record as it is now.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MyTodos2"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationFailed"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "my todos"
+                ],
+                "x-organiseyou-endpoint": "my todos",
+                "operationId": "deleteMyTodos2Record",
+                "summary": "Delete a record of my todos.",
+                "security": [
+                    {
+                        "bearer": []
+                    },
+                    {
+                        "apiKey": []
+                    },
+                    {
+                        "oauth2": [
+                            "rest:write"
+                        ]
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The id of the record.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The record is deleted. The body is empty."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            }
+        },
+        "/rest/my%20todos/record": {
+            "post": {
+                "tags": [
+                    "my todos"
+                ],
+                "x-organiseyou-endpoint": "my todos",
+                "operationId": "createMyTodos2Record",
+                "summary": "Create a record of my todos.",
+                "description": "Answers 201 with the new record: its id and the values you sent. When the endpoint has an assigned-to field, the answer also holds who the record is assigned to: you, unless you are an owner, an admin or an API key who named someone else or nobody.",
+                "security": [
+                    {
+                        "bearer": []
+                    },
+                    {
+                        "apiKey": []
+                    },
+                    {
+                        "oauth2": [
+                            "rest:write"
+                        ]
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MyTodos2Input"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The record is created.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MyTodos2"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationFailed"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearer": {
+                "type": "http",
+                "scheme": "bearer",
+                "description": "An opaque access token in \"Authorization: Bearer <token>\": an \"oya_\" API key, an \"oym_\" client-credentials token or an \"oyo_\" user token (from the login below or the OAuth 2 flows)."
+            },
+            "apiKey": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "X-Api-Key",
+                "description": "An \"oya_\" API key that an owner or admin makes in Settings, Connections, sent as \"X-Api-Key: <key>\"."
+            },
+            "oauth2": {
+                "type": "oauth2",
+                "description": "The OAuth 2 server of the platform.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "https://api.example.test/oauth/token",
+                        "scopes": {
+                            "rest:read": "Read records through REST.",
+                            "rest:write": "Create, change and delete records through REST."
+                        }
+                    },
+                    "authorizationCode": {
+                        "authorizationUrl": "https://api.example.test/oauth/authorize",
+                        "tokenUrl": "https://api.example.test/oauth/token",
+                        "scopes": {
+                            "rest:read": "Read records through REST.",
+                            "rest:write": "Create, change and delete records through REST."
+                        }
+                    }
+                }
+            }
+        },
+        "schemas": {
+            "Error": {
+                "type": "object",
+                "description": "Every refusal has this shape.",
+                "properties": {
+                    "error": {
+                        "type": "string",
+                        "description": "A code, such as not_found or validation_failed."
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "errors": {
+                        "type": "object",
+                        "description": "On a 422: the messages per field.",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "required": [
+                    "error",
+                    "message"
+                ],
+                "example": {
+                    "error": "not_found",
+                    "message": "Not found."
+                }
+            },
+            "LoginRequest": {
+                "type": "object",
+                "properties": {
+                    "grant_type": {
+                        "type": "string",
+                        "enum": [
+                            "password"
+                        ],
+                        "description": "Optional; \"password\" is the default."
+                    },
+                    "identifier": {
+                        "type": "string",
+                        "maxLength": 254,
+                        "description": "The e-mail address of the account."
+                    },
+                    "password": {
+                        "type": "string",
+                        "maxLength": 1024,
+                        "writeOnly": true
+                    }
+                },
+                "required": [
+                    "identifier",
+                    "password"
+                ]
+            },
+            "RefreshRequest": {
+                "type": "object",
+                "properties": {
+                    "grant_type": {
+                        "type": "string",
+                        "enum": [
+                            "refresh_token"
+                        ]
+                    },
+                    "refresh_token": {
+                        "type": "string",
+                        "maxLength": 256,
+                        "writeOnly": true,
+                        "description": "The refresh_token of the last answer. Each is used once."
+                    }
+                },
+                "required": [
+                    "grant_type",
+                    "refresh_token"
+                ]
+            },
+            "TokenAnswer": {
+                "type": "object",
+                "properties": {
+                    "access_token": {
+                        "type": "string",
+                        "description": "Send it as \"Authorization: Bearer <access_token>\"."
+                    },
+                    "token_type": {
+                        "type": "string",
+                        "enum": [
+                            "Bearer"
+                        ]
+                    },
+                    "expires_in": {
+                        "type": "integer",
+                        "description": "Seconds until the access token ends."
+                    },
+                    "refresh_token": {
+                        "type": "string"
+                    },
+                    "scope": {
+                        "type": "string",
+                        "description": "The scopes of the token, separated by spaces."
+                    },
+                    "user": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string",
+                                "pattern": "^usr_[1-9][0-9]*$"
+                            },
+                            "name": {
+                                "type": "string"
+                            },
+                            "email": {
+                                "type": "string",
+                                "format": "email"
+                            }
+                        },
+                        "required": [
+                            "id",
+                            "name",
+                            "email"
+                        ]
+                    }
+                },
+                "required": [
+                    "access_token",
+                    "token_type",
+                    "expires_in",
+                    "refresh_token",
+                    "scope",
+                    "user"
+                ]
+            },
+            "RevokeRequest": {
+                "type": "object",
+                "properties": {
+                    "token": {
+                        "type": "string",
+                        "maxLength": 256,
+                        "writeOnly": true,
+                        "description": "An access token or refresh token of this organization's login."
+                    }
+                },
+                "required": [
+                    "token"
+                ]
+            },
+            "RegisterRequest": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "identifier": {
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 254,
+                        "description": "The e-mail address."
+                    },
+                    "password": {
+                        "type": "string",
+                        "minLength": 8,
+                        "maxLength": 255,
+                        "writeOnly": true
+                    }
+                },
+                "required": [
+                    "name",
+                    "identifier",
+                    "password"
+                ]
+            },
+            "ForgotPasswordRequest": {
+                "type": "object",
+                "properties": {
+                    "identifier": {
+                        "type": "string",
+                        "maxLength": 254,
+                        "description": "The e-mail address of the account."
+                    },
+                    "redirect_url": {
+                        "type": "string",
+                        "maxLength": 2048,
+                        "description": "The address in your application that the link of the e-mail opens. The organization must allow it."
+                    }
+                },
+                "required": [
+                    "identifier",
+                    "redirect_url"
+                ]
+            },
+            "ResetPasswordRequest": {
+                "type": "object",
+                "properties": {
+                    "token": {
+                        "type": "string",
+                        "maxLength": 256,
+                        "writeOnly": true,
+                        "description": "The token in the link of the e-mail."
+                    },
+                    "password": {
+                        "type": "string",
+                        "minLength": 8,
+                        "maxLength": 255,
+                        "writeOnly": true
+                    }
+                },
+                "required": [
+                    "token",
+                    "password"
+                ]
+            },
+            "Me": {
+                "type": "object",
+                "properties": {
+                    "user": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string",
+                                "pattern": "^usr_[1-9][0-9]*$"
+                            },
+                            "email": {
+                                "type": "string",
+                                "format": "email"
+                            },
+                            "name": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "organization": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string",
+                                "format": "uuid"
+                            },
+                            "slug": {
+                                "type": "string"
+                            },
+                            "name": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "roles": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "permissions": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "scopes": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "token": {
+                        "type": "object",
+                        "properties": {
+                            "expires_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "nullable": true
+                            }
+                        }
+                    }
+                }
+            },
+            "2024Goals": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "The id of the record."
+                    },
+                    "due date": {
+                        "type": "string",
+                        "description": "Column 1",
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "id"
+                ]
+            },
+            "2024GoalsInput": {
+                "type": "object",
+                "properties": {
+                    "due date": {
+                        "type": "string",
+                        "description": "Column 1",
+                        "nullable": true
+                    }
+                }
+            },
+            "2024GoalsUpdate": {
+                "type": "object",
+                "properties": {
+                    "due date": {
+                        "type": "string",
+                        "description": "Column 1",
+                        "nullable": true
+                    }
+                }
+            },
+            "2024GoalsList": {
+                "type": "object",
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/2024Goals"
+                        }
+                    },
+                    "pagination": {
+                        "$ref": "#/components/schemas/Pagination"
+                    }
+                },
+                "required": [
+                    "data",
+                    "pagination"
+                ]
+            },
+            "Pagination": {
+                "type": "object",
+                "required": [
+                    "total",
+                    "page",
+                    "perPage",
+                    "links"
+                ],
+                "properties": {
+                    "total": {
+                        "type": "integer",
+                        "description": "How many records match, over all pages."
+                    },
+                    "page": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "description": "The page this answer holds."
+                    },
+                    "perPage": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "description": "The page size this answer used."
+                    },
+                    "links": {
+                        "type": "object",
+                        "properties": {
+                            "first": {
+                                "type": "string"
+                            },
+                            "last": {
+                                "type": "string"
+                            },
+                            "previous": {
+                                "type": "string"
+                            },
+                            "next": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "Class": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "The id of the record."
+                    },
+                    "class": {
+                        "type": "string",
+                        "description": "Column 4",
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "id"
+                ]
+            },
+            "ClassInput": {
+                "type": "object",
+                "properties": {
+                    "class": {
+                        "type": "string",
+                        "description": "Column 4",
+                        "nullable": true
+                    }
+                }
+            },
+            "ClassUpdate": {
+                "type": "object",
+                "properties": {
+                    "class": {
+                        "type": "string",
+                        "description": "Column 4",
+                        "nullable": true
+                    }
+                }
+            },
+            "ClassList": {
+                "type": "object",
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Class"
+                        }
+                    },
+                    "pagination": {
+                        "$ref": "#/components/schemas/Pagination"
+                    }
+                },
+                "required": [
+                    "data",
+                    "pagination"
+                ]
+            },
+            "MyTodos": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "The id of the record."
+                    },
+                    "due date": {
+                        "type": "string",
+                        "description": "Column 1",
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "id"
+                ]
+            },
+            "MyTodosInput": {
+                "type": "object",
+                "properties": {
+                    "due date": {
+                        "type": "string",
+                        "description": "Column 1",
+                        "nullable": true
+                    }
+                }
+            },
+            "MyTodosUpdate": {
+                "type": "object",
+                "properties": {
+                    "due date": {
+                        "type": "string",
+                        "description": "Column 1",
+                        "nullable": true
+                    }
+                }
+            },
+            "MyTodosList": {
+                "type": "object",
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MyTodos"
+                        }
+                    },
+                    "pagination": {
+                        "$ref": "#/components/schemas/Pagination"
+                    }
+                },
+                "required": [
+                    "data",
+                    "pagination"
+                ]
+            },
+            "MyTodos2": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "The id of the record."
+                    },
+                    "due date": {
+                        "type": "string",
+                        "description": "Column 1",
+                        "nullable": true
+                    },
+                    "due-date": {
+                        "type": "string",
+                        "description": "Column 2",
+                        "nullable": true
+                    },
+                    "2nd place": {
+                        "type": "string",
+                        "description": "Column 3",
+                        "nullable": true
+                    },
+                    "class": {
+                        "type": "string",
+                        "description": "Column 4",
+                        "nullable": true
+                    },
+                    "fun": {
+                        "type": "string",
+                        "description": "Column 5",
+                        "nullable": true
+                    },
+                    "func": {
+                        "type": "string",
+                        "description": "Column 6",
+                        "nullable": true
+                    },
+                    "late": {
+                        "type": "string",
+                        "description": "Column 7",
+                        "nullable": true
+                    },
+                    "default": {
+                        "type": "string",
+                        "description": "Column 8",
+                        "nullable": true
+                    },
+                    "in": {
+                        "type": "string",
+                        "description": "Column 9",
+                        "nullable": true
+                    },
+                    "delete": {
+                        "type": "string",
+                        "description": "Column 10",
+                        "nullable": true
+                    },
+                    "return": {
+                        "type": "string",
+                        "description": "Column 11",
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "id"
+                ]
+            },
+            "MyTodos2Input": {
+                "type": "object",
+                "properties": {
+                    "due date": {
+                        "type": "string",
+                        "description": "Column 1",
+                        "nullable": true
+                    },
+                    "due-date": {
+                        "type": "string",
+                        "description": "Column 2",
+                        "nullable": true
+                    },
+                    "2nd place": {
+                        "type": "string",
+                        "description": "Column 3",
+                        "nullable": true
+                    },
+                    "class": {
+                        "type": "string",
+                        "description": "Column 4",
+                        "nullable": true
+                    },
+                    "fun": {
+                        "type": "string",
+                        "description": "Column 5",
+                        "nullable": true
+                    },
+                    "func": {
+                        "type": "string",
+                        "description": "Column 6",
+                        "nullable": true
+                    },
+                    "late": {
+                        "type": "string",
+                        "description": "Column 7",
+                        "nullable": true
+                    },
+                    "default": {
+                        "type": "string",
+                        "description": "Column 8",
+                        "nullable": true
+                    },
+                    "in": {
+                        "type": "string",
+                        "description": "Column 9",
+                        "nullable": true
+                    },
+                    "delete": {
+                        "type": "string",
+                        "description": "Column 10",
+                        "nullable": true
+                    },
+                    "return": {
+                        "type": "string",
+                        "description": "Column 11",
+                        "nullable": true
+                    }
+                }
+            },
+            "MyTodos2Update": {
+                "type": "object",
+                "properties": {
+                    "due date": {
+                        "type": "string",
+                        "description": "Column 1",
+                        "nullable": true
+                    },
+                    "due-date": {
+                        "type": "string",
+                        "description": "Column 2",
+                        "nullable": true
+                    },
+                    "2nd place": {
+                        "type": "string",
+                        "description": "Column 3",
+                        "nullable": true
+                    },
+                    "class": {
+                        "type": "string",
+                        "description": "Column 4",
+                        "nullable": true
+                    },
+                    "fun": {
+                        "type": "string",
+                        "description": "Column 5",
+                        "nullable": true
+                    },
+                    "func": {
+                        "type": "string",
+                        "description": "Column 6",
+                        "nullable": true
+                    },
+                    "late": {
+                        "type": "string",
+                        "description": "Column 7",
+                        "nullable": true
+                    },
+                    "default": {
+                        "type": "string",
+                        "description": "Column 8",
+                        "nullable": true
+                    },
+                    "in": {
+                        "type": "string",
+                        "description": "Column 9",
+                        "nullable": true
+                    },
+                    "delete": {
+                        "type": "string",
+                        "description": "Column 10",
+                        "nullable": true
+                    },
+                    "return": {
+                        "type": "string",
+                        "description": "Column 11",
+                        "nullable": true
+                    }
+                }
+            },
+            "MyTodos2List": {
+                "type": "object",
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MyTodos2"
+                        }
+                    },
+                    "pagination": {
+                        "$ref": "#/components/schemas/Pagination"
+                    }
+                },
+                "required": [
+                    "data",
+                    "pagination"
+                ]
+            }
+        },
+        "responses": {
+            "BadRequest": {
+                "description": "The request is not valid, such as a perPage above the maximum (invalid_request).",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                }
+            },
+            "Unauthenticated": {
+                "description": "No credential, or one that is unknown, revoked or ended (unauthenticated).",
+                "headers": {
+                    "WWW-Authenticate": {
+                        "description": "Where to find how to sign in.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                }
+            },
+            "Forbidden": {
+                "description": "The operation is switched off for this endpoint, the credential's scope does not cover it, or this kind of user may not do it (forbidden).",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                }
+            },
+            "NotFound": {
+                "description": "There is no such endpoint or record, or this credential has no grant on the endpoint, or it belongs to another organization (not_found).",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                }
+            },
+            "ValidationFailed": {
+                "description": "A value is not valid: \"errors\" holds the messages per field (validation_failed).",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                }
+            },
+            "RateLimited": {
+                "description": "Too many requests (rate_limited).",
+                "headers": {
+                    "Retry-After": {
+                        "description": "Seconds to wait.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "security": [
+        {
+            "bearer": []
+        },
+        {
+            "apiKey": []
+        },
+        {
+            "oauth2": [
+                "rest:read",
+                "rest:write"
+            ]
+        }
+    ]
+}

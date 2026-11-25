@@ -1,0 +1,59 @@
+{
+    "id": "list-page-2",
+    "description": "Page 2 of 3.",
+    "synthetic": false,
+    "request": {
+        "method": "GET",
+        "path": "/rest/todos/records",
+        "query": {
+            "page": "2",
+            "perPage": "2"
+        },
+        "headers": {
+            "Authorization": "Bearer oyo_exchange_a1"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-cache, private",
+            "RateLimit-Limit": "120",
+            "RateLimit-Remaining": "113",
+            "RateLimit-Reset": "60"
+        },
+        "body": {
+            "data": [
+                {
+                    "id": "00000000-0000-4000-8000-000000000003",
+                    "title": "Write the report",
+                    "done": false,
+                    "number": "3",
+                    "assigned_to": [
+                        "usr_1"
+                    ]
+                },
+                {
+                    "id": "00000000-0000-4000-8000-000000000004",
+                    "title": "Pay the rent",
+                    "done": false,
+                    "number": "4",
+                    "assigned_to": [
+                        "usr_1"
+                    ]
+                }
+            ],
+            "pagination": {
+                "total": 5,
+                "page": 2,
+                "perPage": 2,
+                "links": {
+                    "first": "https://api.example.test/api/acme/rest/todos/records?page=1&perPage=2",
+                    "last": "https://api.example.test/api/acme/rest/todos/records?page=3&perPage=2",
+                    "previous": "https://api.example.test/api/acme/rest/todos/records?page=1&perPage=2",
+                    "next": "https://api.example.test/api/acme/rest/todos/records?page=3&perPage=2"
+                }
+            }
+        }
+    }
+}

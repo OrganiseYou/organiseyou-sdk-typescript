@@ -1,0 +1,5 @@
+#!/bin/sh
+# Copies the conformance set from a checkout of the OrganiseYou application and checks it against its manifest.
+# Usage: scripts/sync-conformance <path to a checkout of the application>
+set -eu
+exec node "$(dirname "$0")/conformance.mjs" sync "$@"

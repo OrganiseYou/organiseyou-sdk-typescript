@@ -1,0 +1,29 @@
+{
+    "id": "register-closed",
+    "description": "An organization that switched registration off.",
+    "synthetic": false,
+    "request": {
+        "method": "POST",
+        "path": "/auth/register",
+        "query": {},
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": {
+            "name": "Dave Late",
+            "identifier": "dave@example.test",
+            "password": "exchange-password-1"
+        }
+    },
+    "response": {
+        "status": 403,
+        "headers": {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-store, private"
+        },
+        "body": {
+            "error": "registration_closed",
+            "message": "Registration is closed for this application."
+        }
+    }
+}

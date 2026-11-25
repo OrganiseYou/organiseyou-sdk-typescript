@@ -1,0 +1,47 @@
+{
+    "id": "list-all-pages",
+    "description": "all() reads three pages of two records in turn and stops, by the total, after the third: five records and three requests.",
+    "now": "2026-01-01T10:00:00Z",
+    "start": {
+        "session": "stored",
+        "accessToken": "oyo_exchange_a1",
+        "accessTokenEndsAt": "2026-01-01T10:30:00Z",
+        "refreshToken": "oyr_exchange_r1",
+        "scope": "rest:read rest:write graphql:read graphql:write",
+        "user": {
+            "id": "usr_1",
+            "name": "Ada Lovelace",
+            "email": "ada@example.test"
+        }
+    },
+    "steps": [
+        {
+            "do": "records.all",
+            "args": {
+                "endpoint": "todos",
+                "perPage": 2
+            },
+            "calls": [
+                "list-page-1",
+                "list-page-2",
+                "list-page-3"
+            ],
+            "expect": {
+                "result": {
+                    "itemIds": [
+                        "00000000-0000-4000-8000-000000000001",
+                        "00000000-0000-4000-8000-000000000002",
+                        "00000000-0000-4000-8000-000000000003",
+                        "00000000-0000-4000-8000-000000000004",
+                        "00000000-0000-4000-8000-000000000005"
+                    ]
+                }
+            }
+        }
+    ],
+    "serves": {
+        "list-page-1": 1,
+        "list-page-2": 1,
+        "list-page-3": 1
+    }
+}

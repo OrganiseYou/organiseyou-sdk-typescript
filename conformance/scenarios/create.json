@@ -1,0 +1,43 @@
+{
+    "id": "create",
+    "description": "A create answers 201 with the id, the values sent and who it is assigned to.",
+    "now": "2026-01-01T10:00:00Z",
+    "start": {
+        "session": "stored",
+        "accessToken": "oyo_exchange_a1",
+        "accessTokenEndsAt": "2026-01-01T10:30:00Z",
+        "refreshToken": "oyr_exchange_r1",
+        "scope": "rest:read rest:write graphql:read graphql:write",
+        "user": {
+            "id": "usr_1",
+            "name": "Ada Lovelace",
+            "email": "ada@example.test"
+        }
+    },
+    "steps": [
+        {
+            "do": "records.create",
+            "args": {
+                "endpoint": "todos",
+                "values": {
+                    "title": "Buy oat milk"
+                }
+            },
+            "calls": [
+                "create-ok"
+            ],
+            "expect": {
+                "result": {
+                    "id": "00000000-0000-4000-8000-000000000101",
+                    "title": "Buy oat milk",
+                    "assigned_to": [
+                        "usr_1"
+                    ]
+                }
+            }
+        }
+    ],
+    "serves": {
+        "create-ok": 1
+    }
+}

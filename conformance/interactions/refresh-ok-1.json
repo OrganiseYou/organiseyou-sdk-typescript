@@ -1,0 +1,36 @@
+{
+    "id": "refresh-ok-1",
+    "description": "A refresh: the refresh token is spent and a new pair is answered.",
+    "synthetic": false,
+    "request": {
+        "method": "POST",
+        "path": "/auth/token",
+        "query": {},
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": {
+            "grant_type": "refresh_token",
+            "refresh_token": "oyr_exchange_s1"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-store, private"
+        },
+        "body": {
+            "access_token": "oyo_exchange_a3",
+            "token_type": "Bearer",
+            "expires_in": 1800,
+            "refresh_token": "oyr_exchange_r3",
+            "scope": "rest:read rest:write graphql:read graphql:write",
+            "user": {
+                "id": "usr_1",
+                "name": "Ada Lovelace",
+                "email": "ada@example.test"
+            }
+        }
+    }
+}

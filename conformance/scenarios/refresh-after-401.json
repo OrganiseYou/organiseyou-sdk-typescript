@@ -1,0 +1,56 @@
+{
+    "id": "refresh-after-401",
+    "description": "A call answered 401 unauthenticated refreshes once and is retried once with the new access token.",
+    "now": "2026-01-01T10:00:00Z",
+    "start": {
+        "session": "stored",
+        "accessToken": "oyo_exchange_a4",
+        "accessTokenEndsAt": "2026-01-01T10:30:00Z",
+        "refreshToken": "oyr_exchange_s2",
+        "scope": "rest:read rest:write graphql:read graphql:write",
+        "user": {
+            "id": "usr_1",
+            "name": "Ada Lovelace",
+            "email": "ada@example.test"
+        }
+    },
+    "steps": [
+        {
+            "do": "auth.me",
+            "calls": [
+                "me-token-rejected",
+                "refresh-ok-2",
+                "me-after-refresh-2"
+            ],
+            "expect": {
+                "result": {
+                    "user": {
+                        "id": "usr_1",
+                        "email": "ada@example.test",
+                        "name": "Ada Lovelace"
+                    },
+                    "roles": [
+                        "app_user"
+                    ],
+                    "scopes": [
+                        "rest:read",
+                        "rest:write",
+                        "graphql:read",
+                        "graphql:write"
+                    ]
+                },
+                "state": {
+                    "status": "signedIn",
+                    "user": {
+                        "id": "usr_1"
+                    }
+                }
+            }
+        }
+    ],
+    "serves": {
+        "me-token-rejected": 1,
+        "refresh-ok-2": 1,
+        "me-after-refresh-2": 1
+    }
+}

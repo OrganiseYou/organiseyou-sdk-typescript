@@ -1,0 +1,83 @@
+{
+    "id": "list-default",
+    "description": "A list with no page and no page size: page 1, 50 per page. The answer names both.",
+    "synthetic": false,
+    "request": {
+        "method": "GET",
+        "path": "/rest/todos/records",
+        "query": {},
+        "headers": {
+            "Authorization": "Bearer oyo_exchange_a1"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-cache, private",
+            "RateLimit-Limit": "120",
+            "RateLimit-Remaining": "117",
+            "RateLimit-Reset": "60"
+        },
+        "body": {
+            "data": [
+                {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "title": "Buy milk",
+                    "done": false,
+                    "number": "1",
+                    "assigned_to": [
+                        "usr_1"
+                    ]
+                },
+                {
+                    "id": "00000000-0000-4000-8000-000000000002",
+                    "title": "Walk the dog",
+                    "done": true,
+                    "number": "2",
+                    "assigned_to": [
+                        "usr_1"
+                    ]
+                },
+                {
+                    "id": "00000000-0000-4000-8000-000000000003",
+                    "title": "Write the report",
+                    "done": false,
+                    "number": "3",
+                    "assigned_to": [
+                        "usr_1"
+                    ]
+                },
+                {
+                    "id": "00000000-0000-4000-8000-000000000004",
+                    "title": "Pay the rent",
+                    "done": false,
+                    "number": "4",
+                    "assigned_to": [
+                        "usr_1"
+                    ]
+                },
+                {
+                    "id": "00000000-0000-4000-8000-000000000005",
+                    "title": "Call Alice",
+                    "done": false,
+                    "number": "5",
+                    "assigned_to": [
+                        "usr_1"
+                    ]
+                }
+            ],
+            "pagination": {
+                "total": 5,
+                "page": 1,
+                "perPage": 50,
+                "links": {
+                    "first": "https://api.example.test/api/acme/rest/todos/records?page=1&perPage=50",
+                    "last": "https://api.example.test/api/acme/rest/todos/records?page=1&perPage=50",
+                    "previous": "https://api.example.test/api/acme/rest/todos/records?page=1&perPage=50",
+                    "next": "https://api.example.test/api/acme/rest/todos/records?page=1&perPage=50"
+                }
+            }
+        }
+    }
+}
