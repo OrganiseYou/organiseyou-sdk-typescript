@@ -1,0 +1,70 @@
+name: Release
+
+# Publishes the package to npm when a version tag (v1.2.3) is pushed. Nothing else starts it.
+#
+# No npm token is stored anywhere: npm trusts this workflow file in this repository (trusted publishing), and GitHub
+# proves which workflow is running. Because the repository and the package are public, npm also attaches a provenance
+# statement that links the published files to this run.
+#
+# The job runs in the environment "npm", which asks a person to approve before anything is published.
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+# One release at a time; a release in progress is never cancelled.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      contents: read
+      # Lets GitHub hand npm the proof of which workflow this is
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          registry-url: 'https://registry.npmjs.org'
+          package-manager-cache: false
+
+      # Trusted publishing needs npm 11.5.1 or later
+      - name: Use a recent npm
+        run: npm install --global npm@^11.5.1 && npm --version
+
+      # The tag and package.json must name the same version, and a published version can never be reused.
+      - name: Check the version
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          if [ "$TAG" != "v$version" ]; then
+            echo "The tag is $TAG but package.json says $version." && exit 1
+          fi
+          if npm view "@organiseyou/sdk@$version" version 2>/dev/null | grep -q .; then
+            echo "Version $version is already on npm. Choose a new version number." && exit 1
+          fi
+          if ! grep -q "^## $version - " CHANGELOG.md; then
+            echo "CHANGELOG.md has no heading for $version." && exit 1
+          fi
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run conformance:check
+      - run: npm run build
+
+      # Shows the file list in the log before anything is sent
+      - run: npm publish --dry-run
+
+      - run: npm publish
