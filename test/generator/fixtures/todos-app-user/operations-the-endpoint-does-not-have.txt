@@ -1,0 +1,9 @@
+import type { OrganiseYou } from '@organiseyou/sdk';
+import { createApi } from './organiseyou/index.js';
+
+declare const oy: OrganiseYou;
+const api = createApi(oy);
+
+void api.reports.update('1', { title: 'x' }); // expect: TS2339 'update'
+void api.reports.delete('1'); // expect: TS2339 'delete'
+void api.nothing.list(); // expect: TS2339 'nothing'

@@ -178,11 +178,94 @@ const page = todos.list({ signal: controller.signal });
 controller.abort();
 ```
 
+## Typed records: the generator
+
+`organiseyou generate` turns the OpenAPI document of your organization into TypeScript, so a wrong field name, or a call
+the endpoint does not have, fails to compile. It is part of the package (a `bin` named `organiseyou`), runs on Node.js 22
+or later, and the code it writes needs nothing but this package: it has only type imports from it.
+
+```bash
+# Once: read the document with the login of one of your app's users, and keep it beside your code
+npx organiseyou generate --url https://api.example.test/api/acme --login --save openapi.json --out src/organiseyou
+
+# Whenever the endpoints change, and in your own CI to see that the code is current (--check writes nothing)
+npx organiseyou generate --input openapi.json --out src/organiseyou
+npx organiseyou generate --input openapi.json --out src/organiseyou --check
+```
+
+```ts
+import { OrganiseYou } from '@organiseyou/sdk';
+import { createApi, type Todos } from './organiseyou/index.js';
+
+const oy = new OrganiseYou({ baseUrl: 'https://api.example.test/api/acme' });
+const api = createApi(oy);
+
+const todo: Todos = await api.todos.create({ title: 'Buy milk' }); // Promise<Todos>
+await api.todos.update(todo.id, { done: true }); // only the fields an update may set
+for await (const each of api.todos.all()) render(each);
+
+await api.todos.create({ titel: 'x' }); // does not compile: no field `titel`
+await api.todos.create({}); // does not compile: `title` is required
+await api.reports.create({ title: 'x' }); // does not compile: `reports` has no create
+await api.todos.update(todo.id, { number: '9' }); // does not compile: `number` is read only
+```
+
+Each generated method calls the client you made (`oy.records('todos')`), so the session, the refresh, the paging and
+the errors are the core's.
+
+| Option               | What it does                                                                                                           |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `--input <file>`     | A saved `openapi.json`. The recommended way.                                                                           |
+| `--url <address>`    | Reads `<address>/rest/openapi.json`, the API address of your organization. `https`, or `http` for this machine only.   |
+| `--token-env <NAME>` | With `--url`: the environment variable that holds an access token. Defaults to `ORGANISEYOU_TOKEN`.                    |
+| `--login`            | With `--url`: asks for an e-mail address and a password on the terminal (not shown), signs in, reads, signs out.       |
+| `--save <file>`      | With `--url`: writes the document to a file. It holds no credential.                                                   |
+| `--out <folder>`     | Where to write. Required.                                                                                              |
+| `--check`            | Writes nothing and exits with 1 when the code in `--out` is not what a run would write, and with 0 when it is current. |
+
+There is no option for a token or a password, because arguments end up in shell history and process lists. The document
+is per person: it holds the operations and fields the login may use. Generate with the login of a person of the same
+kind as your app's users, not an owner's, so the code has the operations your users have; never type an owner's
+password for this.
+
+**What it writes.** In `--out`: `models.ts` (an `interface` for each record, input and update schema), `endpoints.ts` (a
+class for each endpoint, with only the operations that are switched on), `index.ts` (`createApi(oy)` and the `Api`
+type) and `.organiseyou-generated.json` (the generator's version, the SHA-256 of the document and its revision when it
+has one, and the files). The files are the same on every run for the same document: sorted, and with no date.
+
+- A field keeps its alias as its key, quoted when it is not a plain name (`'due date'`), also for a reserved word. A name
+  that starts with a digit gets a `_` in front (`_2024Goals`), and a name that is taken gets a number.
+- Every field of a record is optional and may be `null`, except `id`. A field the app cannot write is `readonly` in the
+  record and is not in the input or the update. In an update, a missing property keeps the value and `null` clears it.
+- `create` answers with the record the server sends: the id, the values you sent, and `assigned_to`. Read the record
+  with `get` when you need what the server sets.
+
+| Schema                                                                                                      | TypeScript                  |
+| ----------------------------------------------------------------------------------------------------------- | --------------------------- |
+| text, e-mail, address, phone, time, date, date and time, decimal, currency, percent, id of a related record | `string`                    |
+| integer                                                                                                     | `number` (exact up to 2^53) |
+| boolean                                                                                                     | `boolean`                   |
+| list of ids (related records, assigned to)                                                                  | `string[]`                  |
+| anything else, or a shape the generator does not know (it prints a warning)                                 | `JsonValue`                 |
+
+Decimals and dates stay strings: a decimal is exact that way, and the SDK does not check an e-mail address or a time
+(the server does, and answers `422`).
+
+**Safe to run again.** Every generated file starts with a line that says it is generated. The generator writes only into
+`--out`, and refuses to touch a folder that holds anything it did not write (so it never overwrites your code, and a
+folder with your own files in it is an error). It builds the whole result before it replaces a file, leaves a file alone
+when its text did not change, and deletes the generated files of an earlier run that the new output no longer has.
+
+**What it never writes.** No token, password, `Authorization` header or e-mail address: not in the code, not in the
+manifest, not in `--save`, and no cache. The descriptions of the document are not copied into the code either, since
+they are free text. With `--login` the password is read without echo, goes only to the sign-in of this package, and the
+generator signs out when it is done.
+
 ## Not there yet
 
 - GraphQL.
 - Filtering and sorting a list.
-- Types generated from an organization's OpenAPI document: records are plain objects for now.
+- Typed GraphQL.
 
 ## Development
 

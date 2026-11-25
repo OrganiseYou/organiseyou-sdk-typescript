@@ -1,0 +1,29 @@
+import type { OrganiseYou } from '@organiseyou/sdk';
+import { createApi, type Class, type MyTodos2, type MyTodos2Input, type _2024Goals } from './organiseyou/index.js';
+
+declare const oy: OrganiseYou;
+const api = createApi(oy);
+
+export async function useIt(): Promise<void> {
+  // Every alias is kept as its JSON key
+  const input: MyTodos2Input = {
+    'due date': 'tomorrow',
+    'due-date': 'later',
+    '2nd place': 'silver',
+    class: 'a',
+    fun: 'b',
+    func: 'c',
+    late: 'd',
+    default: 'e',
+    in: 'f',
+    delete: 'g',
+    return: 'h',
+  };
+  const record: MyTodos2 = await api['my todos'].create(input);
+  const dueDate: string | null | undefined = record['due-date'];
+  const second: string | null | undefined = record['2nd place'];
+  const kept: Class = await api.class.get('1');
+  const goal: _2024Goals = await api['2024 goals'].get('1');
+  const hyphen = await api['my-todos'].list();
+  void [dueDate, second, kept, goal, hyphen];
+}
