@@ -24,3 +24,7 @@ stays at `0.x` until its first public release: until then the public interface m
 - One refresh, however many calls need it: the access token is renewed a minute before it ends, and once after a `401`.
   The new tokens are saved before any waiting call goes on, and a refresh token is never sent twice.
 - Every call takes an optional `signal` to cancel it.
+- `oy.records(name)` with `list`, `all`, `get`, `create`, `update` and `delete`, and the types `RecordData` and
+  `Page`. `all()` reads page after page and stops by `total`, at an empty page, or one page past the last page the
+  latest `total` allows. Links in a list answer are never followed.
+- A README with the quick start, the stores, the errors and paging.

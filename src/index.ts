@@ -7,6 +7,14 @@ export {
   type OrganiseYouErrorInit,
   type RateLimit,
 } from './error.js';
+export type {
+  AllOptions,
+  ListOptions,
+  Page,
+  RecordData,
+  RecordValues,
+  Records,
+} from './records.js';
 export type { Session, SessionListener, SessionState, SignedOutReason } from './session.js';
 export {
   MemoryTokenStore,
