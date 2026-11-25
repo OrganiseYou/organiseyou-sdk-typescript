@@ -18,6 +18,35 @@ Tests use a fake `fetch` and fake timers. A test never opens a socket, reaches a
 Build a token-shaped value at run time, never write one in a file: the secret scan fails on a string that looks like a
 credential, and so does a pull request that holds one.
 
+## The shared conformance set
+
+`conformance/` holds recorded requests and answers, the scenarios that use them and sample OpenAPI documents. Every
+OrganiseYou SDK runs the same scenarios, so they agree with each other and with the server. It is a **copy**: never edit
+a file in it by hand.
+
+- `test/conformance/` runs every scenario against the SDK. A mock transport serves the interactions a scenario names,
+  fails on any request it does not know, and counts every request; the global `fetch` is replaced by one that fails,
+  so no socket is opened.
+- `node scripts/conformance.mjs check` (the `conformance` CI job) compares every file with the SHA-256 in
+  `conformance/manifest.json`. It fails on a changed, missing or extra file.
+- A newer set comes in a pull request of its own: `scripts/sync-conformance <path to a checkout of the OrganiseYou
+application>` copies it, checks it against its manifest and prints the set number. Review the diff, then run the tests. A pull request that only brings in a newer set may change more than 50 files.
+  If the SDK and a scenario disagree, do not change the runner to hide it: the set is corrected at its source, or the
+  SDK is fixed.
+
+## The end-to-end check
+
+`npm run e2e -- --base-url <address>` runs the SDK against a **local** OrganiseYou: it registers two people, takes each
+confirmation link from the local Mailpit, signs in, creates, lists, updates and deletes a record, signs out, and checks
+that the second person never sees the first person's record. Run it by hand; CI never does.
+
+- Prepare a local organization with the application's `sdk:e2e-setup` command, and use its API address as `--base-url`.
+- Mailpit is read at `http://localhost:8025`; pass `--mailpit-url` when yours is elsewhere.
+- Both addresses must point at this machine: the host is resolved and anything that is not a loopback address is
+  refused before a request is sent. A local development host with a locally trusted certificate needs Node.js to trust
+  that certificate authority, for example with `NODE_EXTRA_CA_CERTS`.
+- It prints one line per step, and never a token, a password or a link.
+
 ## Start from the default branch
 
 Start every change from the latest `origin/main`:
@@ -55,8 +84,8 @@ a real address of an OrganiseYou server into a pull request, an issue or a test.
 ## Draft pull requests run no checks
 
 Every job costs build minutes, so a draft pull request runs none. Run `npm run lint`, `npm run typecheck`,
-`npm test` and `npm run build` yourself while it is a draft. Marking it **ready for review** starts the four checks:
-lint, typecheck, test and gitleaks. Do not merge a pull request while one of them is red.
+`npm test` and `npm run build` yourself while it is a draft. Marking it **ready for review** starts the five checks:
+lint, typecheck, test, conformance and gitleaks. Do not merge a pull request while one of them is red.
 
 ## What goes in the repository
 

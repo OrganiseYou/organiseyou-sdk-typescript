@@ -1,0 +1,62 @@
+{
+    "id": "me",
+    "description": "The call \"who am I\" returns the user, organization, roles and scopes, and the rate-limit numbers of the answer are kept.",
+    "now": "2026-01-01T10:00:00Z",
+    "start": {
+        "session": "stored",
+        "accessToken": "oyo_exchange_a1",
+        "accessTokenEndsAt": "2026-01-01T10:30:00Z",
+        "refreshToken": "oyr_exchange_r1",
+        "scope": "rest:read rest:write graphql:read graphql:write",
+        "user": {
+            "id": "usr_1",
+            "name": "Ada Lovelace",
+            "email": "ada@example.test"
+        }
+    },
+    "steps": [
+        {
+            "do": "auth.me",
+            "calls": [
+                "me-ok"
+            ],
+            "expect": {
+                "result": {
+                    "user": {
+                        "id": "usr_1",
+                        "email": "ada@example.test",
+                        "name": "Ada Lovelace"
+                    },
+                    "roles": [
+                        "app_user"
+                    ],
+                    "scopes": [
+                        "rest:read",
+                        "rest:write",
+                        "graphql:read",
+                        "graphql:write"
+                    ],
+                    "organization": {
+                        "id": "00000000-0000-4000-8000-0000000000a0",
+                        "slug": "acme",
+                        "name": "Acme"
+                    }
+                },
+                "lastRateLimit": {
+                    "limit": 120,
+                    "remaining": 119,
+                    "reset": 60
+                },
+                "state": {
+                    "status": "signedIn",
+                    "user": {
+                        "id": "usr_1"
+                    }
+                }
+            }
+        }
+    ],
+    "serves": {
+        "me-ok": 1
+    }
+}

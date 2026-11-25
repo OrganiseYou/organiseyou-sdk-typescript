@@ -1,0 +1,29 @@
+{
+    "id": "me-rate-limited",
+    "description": "A credential limit reached: 429 with Retry-After and the RateLimit headers.",
+    "synthetic": false,
+    "request": {
+        "method": "GET",
+        "path": "/rest/me",
+        "query": {},
+        "headers": {
+            "Authorization": "Bearer oyo_exchange_a10"
+        }
+    },
+    "response": {
+        "status": 429,
+        "headers": {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-cache, private",
+            "Retry-After": "60",
+            "RateLimit-Limit": "1",
+            "RateLimit-Remaining": "0",
+            "RateLimit-Reset": "60"
+        },
+        "body": {
+            "error": "rate_limited",
+            "message": "Too many requests. Wait before you try again.",
+            "bucket": "credential"
+        }
+    }
+}

@@ -1,0 +1,29 @@
+{
+    "id": "list-perpage-too-large",
+    "description": "A page size above the organization's maximum is a 400, not a clamp.",
+    "synthetic": false,
+    "request": {
+        "method": "GET",
+        "path": "/rest/todos/records",
+        "query": {
+            "perPage": "1000"
+        },
+        "headers": {
+            "Authorization": "Bearer oyo_exchange_a1"
+        }
+    },
+    "response": {
+        "status": 400,
+        "headers": {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-cache, private",
+            "RateLimit-Limit": "120",
+            "RateLimit-Remaining": "109",
+            "RateLimit-Reset": "60"
+        },
+        "body": {
+            "error": "invalid_request",
+            "message": "The page size may not exceed 200."
+        }
+    }
+}

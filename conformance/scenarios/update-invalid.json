@@ -1,0 +1,49 @@
+{
+    "id": "update-invalid",
+    "description": "An app user who hands a record to another person gets a 422 with the message on assigned_to.",
+    "now": "2026-01-01T10:00:00Z",
+    "start": {
+        "session": "stored",
+        "accessToken": "oyo_exchange_a1",
+        "accessTokenEndsAt": "2026-01-01T10:30:00Z",
+        "refreshToken": "oyr_exchange_r1",
+        "scope": "rest:read rest:write graphql:read graphql:write",
+        "user": {
+            "id": "usr_1",
+            "name": "Ada Lovelace",
+            "email": "ada@example.test"
+        }
+    },
+    "steps": [
+        {
+            "do": "records.update",
+            "args": {
+                "endpoint": "todos",
+                "id": "00000000-0000-4000-8000-000000000101",
+                "values": {
+                    "assigned_to": [
+                        "usr_2"
+                    ]
+                }
+            },
+            "calls": [
+                "update-invalid"
+            ],
+            "expect": {
+                "error": {
+                    "kind": "http",
+                    "status": 422,
+                    "code": "validation_failed",
+                    "fieldErrors": {
+                        "assigned_to": [
+                            "Only owners and admins can change who this is assigned to."
+                        ]
+                    }
+                }
+            }
+        }
+    ],
+    "serves": {
+        "update-invalid": 1
+    }
+}

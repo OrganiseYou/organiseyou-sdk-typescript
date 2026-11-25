@@ -1,0 +1,28 @@
+{
+    "id": "forbidden-create-reports",
+    "description": "An operation that is switched off: 403 forbidden.",
+    "synthetic": false,
+    "request": {
+        "method": "POST",
+        "path": "/rest/reports/record",
+        "query": {},
+        "headers": {
+            "Authorization": "Bearer oyo_exchange_a1",
+            "Content-Type": "application/json"
+        },
+        "body": {
+            "title": "Not allowed"
+        }
+    },
+    "response": {
+        "status": 403,
+        "headers": {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-cache, private"
+        },
+        "body": {
+            "error": "forbidden",
+            "message": "You do not have access to this."
+        }
+    }
+}

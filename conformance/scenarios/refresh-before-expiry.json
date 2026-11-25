@@ -1,0 +1,62 @@
+{
+    "id": "refresh-before-expiry",
+    "description": "The access token ends within 60 seconds: the call joins one refresh first, then goes out with the new access token.",
+    "now": "2026-01-01T10:00:00Z",
+    "start": {
+        "session": "stored",
+        "accessToken": "oyo_exchange_a2",
+        "accessTokenEndsAt": "2026-01-01T10:30:00Z",
+        "refreshToken": "oyr_exchange_s1",
+        "scope": "rest:read rest:write graphql:read graphql:write",
+        "user": {
+            "id": "usr_1",
+            "name": "Ada Lovelace",
+            "email": "ada@example.test"
+        }
+    },
+    "steps": [
+        {
+            "do": "clock.advance",
+            "args": {
+                "seconds": 1770
+            },
+            "calls": [],
+            "expect": {}
+        },
+        {
+            "do": "auth.me",
+            "calls": [
+                "refresh-ok-1",
+                "me-after-refresh-1"
+            ],
+            "expect": {
+                "result": {
+                    "user": {
+                        "id": "usr_1",
+                        "email": "ada@example.test",
+                        "name": "Ada Lovelace"
+                    },
+                    "roles": [
+                        "app_user"
+                    ],
+                    "scopes": [
+                        "rest:read",
+                        "rest:write",
+                        "graphql:read",
+                        "graphql:write"
+                    ]
+                },
+                "state": {
+                    "status": "signedIn",
+                    "user": {
+                        "id": "usr_1"
+                    }
+                }
+            }
+        }
+    ],
+    "serves": {
+        "refresh-ok-1": 1,
+        "me-after-refresh-1": 1
+    }
+}

@@ -1,0 +1,31 @@
+{
+    "id": "login",
+    "description": "A verified person signs in: the answer is kept and the session reports signed in.",
+    "now": "2026-01-01T10:00:00Z",
+    "start": {
+        "session": "none"
+    },
+    "steps": [
+        {
+            "do": "auth.signIn",
+            "args": {
+                "identifier": "ada@example.test",
+                "password": "exchange-password-1"
+            },
+            "calls": [
+                "login-ok"
+            ],
+            "expect": {
+                "state": {
+                    "status": "signedIn",
+                    "user": {
+                        "id": "usr_1"
+                    }
+                }
+            }
+        }
+    ],
+    "serves": {
+        "login-ok": 1
+    }
+}

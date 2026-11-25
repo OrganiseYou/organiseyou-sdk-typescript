@@ -1,0 +1,40 @@
+{
+    "id": "delete",
+    "description": "A delete answers 200 with an empty body; the call succeeds and returns nothing.",
+    "now": "2026-01-01T10:00:00Z",
+    "start": {
+        "session": "stored",
+        "accessToken": "oyo_exchange_a1",
+        "accessTokenEndsAt": "2026-01-01T10:30:00Z",
+        "refreshToken": "oyr_exchange_r1",
+        "scope": "rest:read rest:write graphql:read graphql:write",
+        "user": {
+            "id": "usr_1",
+            "name": "Ada Lovelace",
+            "email": "ada@example.test"
+        }
+    },
+    "steps": [
+        {
+            "do": "records.delete",
+            "args": {
+                "endpoint": "todos",
+                "id": "00000000-0000-4000-8000-000000000101"
+            },
+            "calls": [
+                "delete-ok"
+            ],
+            "expect": {
+                "state": {
+                    "status": "signedIn",
+                    "user": {
+                        "id": "usr_1"
+                    }
+                }
+            }
+        }
+    ],
+    "serves": {
+        "delete-ok": 1
+    }
+}

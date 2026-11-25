@@ -1,0 +1,34 @@
+{
+    "id": "create-invalid",
+    "description": "A create without the required title: 422 with the messages per field alias.",
+    "synthetic": false,
+    "request": {
+        "method": "POST",
+        "path": "/rest/todos/record",
+        "query": {},
+        "headers": {
+            "Authorization": "Bearer oyo_exchange_a1",
+            "Content-Type": "application/json"
+        },
+        "body": {}
+    },
+    "response": {
+        "status": 422,
+        "headers": {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-cache, private",
+            "RateLimit-Limit": "120",
+            "RateLimit-Remaining": "105",
+            "RateLimit-Reset": "60"
+        },
+        "body": {
+            "error": "validation_failed",
+            "message": "The field 'title' is required.",
+            "errors": {
+                "title": [
+                    "The field 'title' is required."
+                ]
+            }
+        }
+    }
+}

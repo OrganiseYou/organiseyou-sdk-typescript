@@ -1,0 +1,36 @@
+{
+    "id": "register-invalid",
+    "description": "A password that is too short is a 422 with the messages per field.",
+    "now": "2026-01-01T10:00:00Z",
+    "start": {
+        "session": "none"
+    },
+    "steps": [
+        {
+            "do": "auth.register",
+            "args": {
+                "name": "Dave Short",
+                "identifier": "dave@example.test",
+                "password": "short"
+            },
+            "calls": [
+                "register-invalid"
+            ],
+            "expect": {
+                "error": {
+                    "kind": "http",
+                    "status": 422,
+                    "code": "validation_failed",
+                    "fieldErrors": {
+                        "password": [
+                            "The password field must be at least 8 characters."
+                        ]
+                    }
+                }
+            }
+        }
+    ],
+    "serves": {
+        "register-invalid": 1
+    }
+}

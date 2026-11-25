@@ -1,0 +1,39 @@
+{
+    "id": "refresh-retry-also-401",
+    "description": "A retried call that gets 401 again is returned as an error, and no second refresh starts.",
+    "now": "2026-01-01T10:00:00Z",
+    "start": {
+        "session": "stored",
+        "accessToken": "oyo_exchange_a4",
+        "accessTokenEndsAt": "2026-01-01T10:30:00Z",
+        "refreshToken": "oyr_exchange_s4",
+        "scope": "rest:read rest:write graphql:read graphql:write",
+        "user": {
+            "id": "usr_1",
+            "name": "Ada Lovelace",
+            "email": "ada@example.test"
+        }
+    },
+    "steps": [
+        {
+            "do": "auth.me",
+            "calls": [
+                "me-token-rejected",
+                "refresh-ok-4",
+                "me-rejected-after-refresh"
+            ],
+            "expect": {
+                "error": {
+                    "kind": "http",
+                    "status": 401,
+                    "code": "unauthenticated"
+                }
+            }
+        }
+    ],
+    "serves": {
+        "me-token-rejected": 1,
+        "refresh-ok-4": 1,
+        "me-rejected-after-refresh": 1
+    }
+}

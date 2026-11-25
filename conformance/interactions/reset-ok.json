@@ -1,0 +1,27 @@
+{
+    "id": "reset-ok",
+    "description": "The new password is set: 200 and no token.",
+    "synthetic": false,
+    "request": {
+        "method": "POST",
+        "path": "/auth/password/reset",
+        "query": {},
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": {
+            "token": "exchange-reset-token-1",
+            "password": "exchange-new-password-1"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-store, private"
+        },
+        "body": {
+            "status": "password_reset"
+        }
+    }
+}

@@ -1,0 +1,56 @@
+{
+    "id": "list-user2",
+    "description": "The second person lists the same endpoint: \"assigned only\" shows them only their own records.",
+    "synthetic": false,
+    "request": {
+        "method": "GET",
+        "path": "/rest/todos/records",
+        "query": {},
+        "headers": {
+            "Authorization": "Bearer oyo_exchange_b1"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-cache, private",
+            "RateLimit-Limit": "600",
+            "RateLimit-Remaining": "587",
+            "RateLimit-Reset": "60"
+        },
+        "body": {
+            "data": [
+                {
+                    "id": "00000000-0000-4000-8000-000000000011",
+                    "title": "Paint the fence",
+                    "done": false,
+                    "number": "6",
+                    "assigned_to": [
+                        "usr_2"
+                    ]
+                },
+                {
+                    "id": "00000000-0000-4000-8000-000000000012",
+                    "title": "Mow the lawn",
+                    "done": true,
+                    "number": "7",
+                    "assigned_to": [
+                        "usr_2"
+                    ]
+                }
+            ],
+            "pagination": {
+                "total": 2,
+                "page": 1,
+                "perPage": 50,
+                "links": {
+                    "first": "https://api.example.test/api/acme/rest/todos/records?page=1&perPage=50",
+                    "last": "https://api.example.test/api/acme/rest/todos/records?page=1&perPage=50",
+                    "previous": "https://api.example.test/api/acme/rest/todos/records?page=1&perPage=50",
+                    "next": "https://api.example.test/api/acme/rest/todos/records?page=1&perPage=50"
+                }
+            }
+        }
+    }
+}

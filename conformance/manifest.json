@@ -1,0 +1,338 @@
+{
+    "set": 1,
+    "date": "2026-11-25",
+    "files": [
+        {
+            "path": "CHANGELOG.md",
+            "sha256": "6f1323aa2d381bbc0eb98b7cb49e4a675c3aa16d4f47f459d406f1f6065fe1a6"
+        },
+        {
+            "path": "README.md",
+            "sha256": "7d85f48dec3b1c2f2300dd2b3a2d60974e25f30a9b93a13e4ee67481899aed69"
+        },
+        {
+            "path": "interactions/create-invalid.json",
+            "sha256": "8d30a4cd1255d705b49a8ec7b1226bf9e696351f417b4ef9de32c5c01f121624"
+        },
+        {
+            "path": "interactions/create-ok.json",
+            "sha256": "f1b10603a0b1e2bd49a3e0200596e089d73196afd89afe5f2307861ce1723f54"
+        },
+        {
+            "path": "interactions/delete-ok.json",
+            "sha256": "03373bb0b6f86656096100e5f2e5b66237a9963fb2d05dc8d769d9244673998e"
+        },
+        {
+            "path": "interactions/forbidden-create-reports.json",
+            "sha256": "c9da0d089aebbfa2776a188f9f2f5e027dd9b28faacfb1246a786da419bac193"
+        },
+        {
+            "path": "interactions/forgot-invalid-redirect.json",
+            "sha256": "84914daacea779c15223092c360ca48714e42e7ed7ccd0466af1196fb05b965f"
+        },
+        {
+            "path": "interactions/forgot-ok.json",
+            "sha256": "2f0e90b6cb2a1e5dd85321c90de14961c0e19d00446823a75f26407699f48fd7"
+        },
+        {
+            "path": "interactions/get-not-found.json",
+            "sha256": "db801cf6f1e9ef9b9be3f1f74d90181d9637a21c073a5baa8440ae1141800831"
+        },
+        {
+            "path": "interactions/get-ok.json",
+            "sha256": "7c7b893ea36f3889b7988e48f76f63e5f65619da9c38b1a55d1de6805927fd9d"
+        },
+        {
+            "path": "interactions/list-default.json",
+            "sha256": "8d39560f975784ea367cc23a04238a3931f3d7a30c211b8011eec1d34ab132d1"
+        },
+        {
+            "path": "interactions/list-page-1-after-refresh-3.json",
+            "sha256": "1e413326470667d18e3c39ffde757167a29bb9c7aa13710943f24b7bd3d625df"
+        },
+        {
+            "path": "interactions/list-page-1.json",
+            "sha256": "a829cff75d6acf6c6be5e654ee11a74c62981b6c0a3eeff9eafa0fac6cd13fe5"
+        },
+        {
+            "path": "interactions/list-page-2.json",
+            "sha256": "c64293e562adb8cb0ca47d1e9ee176500b595c6067fa704dfbe2b32f5acdd16a"
+        },
+        {
+            "path": "interactions/list-page-3.json",
+            "sha256": "ce6cfd417f2c56f464625075032e6a98aad10d20facded6cf939c5b9c056afcc"
+        },
+        {
+            "path": "interactions/list-perpage-too-large.json",
+            "sha256": "a1cb402004dc8b2143dcf14bebd94c015f5f6543e607445d4e869724b7e03a78"
+        },
+        {
+            "path": "interactions/list-user2.json",
+            "sha256": "370c750555815fc74a67a32ad5f056b82d58236403e4e4da912a1dd328982360"
+        },
+        {
+            "path": "interactions/login-email-not-verified.json",
+            "sha256": "368767a6f8418c490b81ad66b2591f763c957368de60d7b6fbad3b6b8f8990e8"
+        },
+        {
+            "path": "interactions/login-invalid-credentials.json",
+            "sha256": "343499dcad4a7fc49c7f311c027b98d025809f90d7edd48ed1443c8ee223f6f0"
+        },
+        {
+            "path": "interactions/login-ok-user2.json",
+            "sha256": "cd6ed36d805e70a670d3909cf6ce6346e5a16ac3feec4f4d22b797c552c4c330"
+        },
+        {
+            "path": "interactions/login-ok.json",
+            "sha256": "bbba172d69d65c8e3566568e5bd1a5fba973e2dee32432f9050f5dcfd9da1172"
+        },
+        {
+            "path": "interactions/me-after-refresh-1.json",
+            "sha256": "26e2cebf1af996974f373e5a9c5be2114d1db72d65fc02f6a63de1fea58ba187"
+        },
+        {
+            "path": "interactions/me-after-refresh-2.json",
+            "sha256": "1875c4474c1a7fd01c571196fa12b33d7241c40f105c3140bdefd35f5b03d12d"
+        },
+        {
+            "path": "interactions/me-after-refresh-3.json",
+            "sha256": "7b47a11935abd47d6bc47bbad9e2bf05a664d42baf83aff6ddcb3dc980022ebd"
+        },
+        {
+            "path": "interactions/me-ok.json",
+            "sha256": "50962ba73df4ed97724640a77d5873636ab900ee804b1f19a207881f5197c5db"
+        },
+        {
+            "path": "interactions/me-rate-limited.json",
+            "sha256": "fab1a0e206953e78038775cab391480106fce455cbae5cfbd177b16515ab2a86"
+        },
+        {
+            "path": "interactions/me-rejected-after-refresh.json",
+            "sha256": "f9490c244b978996fc2f9a11da0118983891a54fb84d4067dc02e1df296d8caf"
+        },
+        {
+            "path": "interactions/me-token-rejected.json",
+            "sha256": "b95a69562ca2f53dfd6fb330c192807f6654b6faa9340aeba0df626af0f0d170"
+        },
+        {
+            "path": "interactions/not-json-200.json",
+            "sha256": "bc6c856279ab87ce1191dfdc186ed83a340b73c90d8e424c51a6648bbbfb1902"
+        },
+        {
+            "path": "interactions/proxy-502-html.json",
+            "sha256": "9c6518ccbc0aa5a1039e2cbf5c2d060082b8458f8119316a6c63bb751870e404"
+        },
+        {
+            "path": "interactions/refresh-ok-1.json",
+            "sha256": "ed079357e428b089d24a6691bf223acae29440fbb2420807c67df16baceb1a36"
+        },
+        {
+            "path": "interactions/refresh-ok-2.json",
+            "sha256": "c15c81f52de8d10799e531f5716a77710d279284274ebc794ab278cb82828086"
+        },
+        {
+            "path": "interactions/refresh-ok-3.json",
+            "sha256": "740b5b12795b6fe57b147b807a2b9ddf35fde628dcf4eb8862a94d81cf59887e"
+        },
+        {
+            "path": "interactions/refresh-ok-4.json",
+            "sha256": "7cb174e4c4d5770e351770d41d9e10d95cf6a801254436e36b2d1c30def45567"
+        },
+        {
+            "path": "interactions/refresh-spent.json",
+            "sha256": "1b411e202ac76aeca439e59258de1a425aaf20ca03b8f45ebc8a31e6c5a990cc"
+        },
+        {
+            "path": "interactions/register-closed.json",
+            "sha256": "50ce2929338cf172d4bea65687f7db103265c2f47a6140cf26632103bb825b02"
+        },
+        {
+            "path": "interactions/register-invalid.json",
+            "sha256": "39a1ead9e83ed68c5a3acc9178421074c286731b93ec5c5bb78f0a727f26aa43"
+        },
+        {
+            "path": "interactions/register-ok.json",
+            "sha256": "605d9742220d018306adfee10699cb5bf3f215eede7dd07ee68db3a775c83907"
+        },
+        {
+            "path": "interactions/reset-invalid-token.json",
+            "sha256": "29e0fcd9cebde7c11246ee4b12cbbcd8f4e1aba4bf60142afb398ed7c38e61f9"
+        },
+        {
+            "path": "interactions/reset-ok.json",
+            "sha256": "4b194680a55880b37f76bef5aa77ea7b9dc706637c1031b54cf9a70b58db7f83"
+        },
+        {
+            "path": "interactions/reset-weak-password.json",
+            "sha256": "c1c03d3d5dd9ab71f56331903cfadd13d656d7badf9bfb41f03bd7af483afc8c"
+        },
+        {
+            "path": "interactions/revoke-ok.json",
+            "sha256": "2013e3c556230fa281f4b6efd57a33ec7f16ab7d3b6f0c053a9afc4b3ba4a83a"
+        },
+        {
+            "path": "interactions/update-invalid.json",
+            "sha256": "bf90f2fcd04eaab8b7b6f383888e193699337a4aff2ffc3b96c350b6d5b88670"
+        },
+        {
+            "path": "interactions/update-ok.json",
+            "sha256": "1a0eb5230bfaa3a3e01aba4e8e74173e9e7b53e13b9bd500d3a10f5d895964db"
+        },
+        {
+            "path": "openapi/all-types.json",
+            "sha256": "eb14bdffb0c76132942788387af8c74953fcd4c6d8d72df250e9c7d9df7ea6b3"
+        },
+        {
+            "path": "openapi/awkward-names.json",
+            "sha256": "2e702d83a18de44f6ced6eeef8723bcf1add60b9b8ec707b6645af52460a6d52"
+        },
+        {
+            "path": "openapi/todos-app-user.json",
+            "sha256": "e22e12b8b9d156f9177df714b21961775bd2432d34a4c05b6f1cf71301e67231"
+        },
+        {
+            "path": "openapi/todos-owner.json",
+            "sha256": "e22e12b8b9d156f9177df714b21961775bd2432d34a4c05b6f1cf71301e67231"
+        },
+        {
+            "path": "scenarios/call-without-session.json",
+            "sha256": "216f62715c8605f43aa7298eb976fc3ca88fef2ce7189142c43c8e340fc55417"
+        },
+        {
+            "path": "scenarios/create-invalid.json",
+            "sha256": "93130558f876ad462011c6250f653408ab99a5ec679ce9008eccc422a727110f"
+        },
+        {
+            "path": "scenarios/create.json",
+            "sha256": "2e49c3935eda2f6bbe8bb60bc2f175e2476942686a8233aaf54742402102a825"
+        },
+        {
+            "path": "scenarios/delete.json",
+            "sha256": "427aa4cd73a86cd24808f28ef66127b4ea47173c93f9e218cacde132eeb8becd"
+        },
+        {
+            "path": "scenarios/forbidden-operation.json",
+            "sha256": "1ab4e8000813bada0468498439865b13e4b2ded72985e539cc34e7b8bcde540d"
+        },
+        {
+            "path": "scenarios/forgot-password-invalid-redirect.json",
+            "sha256": "e92a3e52684b19415029c2685b98e627a0f6fc8dfe855e3ca09c29abe530d439"
+        },
+        {
+            "path": "scenarios/forgot-password.json",
+            "sha256": "41fc8433f81d2592419e2711a36fbb95c7906bf3724e23bd31075a3a3057dbf1"
+        },
+        {
+            "path": "scenarios/get-not-found.json",
+            "sha256": "97f3b3ea4022402b3cdb678d45834581cb7d0e4994e37ec97ff40f5a3c7d29fa"
+        },
+        {
+            "path": "scenarios/get.json",
+            "sha256": "7cab85050cf9218827d8dcaa4cb3f72e2604ad22bfcbe03ac2c9b01dada69970"
+        },
+        {
+            "path": "scenarios/list-all-pages.json",
+            "sha256": "93c82716d6eb9bf0a8e0894870cbaeb2f8cb837f92e5eb61d78de2f87ea80e73"
+        },
+        {
+            "path": "scenarios/list-assigned-only.json",
+            "sha256": "c01fbcdbaec1bb4e879ee01bc92ba53a89748a33c36d702ea054d45f2794b53e"
+        },
+        {
+            "path": "scenarios/list-default.json",
+            "sha256": "b69d4f7b1f9d27201b5d4ed0b753ce1d9b09e0c6430f7bba42e02c5991c56026"
+        },
+        {
+            "path": "scenarios/list-perpage-too-large.json",
+            "sha256": "77ca415924fb5197770ee20b4c895a7d30718fa503566db8d71c9aca711705cc"
+        },
+        {
+            "path": "scenarios/login-email-not-verified.json",
+            "sha256": "1653598e61fd1b035ee6bee2392daa861dacd50e1e32ef27147b2e658e9b7902"
+        },
+        {
+            "path": "scenarios/login-invalid-credentials.json",
+            "sha256": "1d7494b93317bdaad6f93d87a0d59b9992de4c1a8e4a6289893f6f15badb1199"
+        },
+        {
+            "path": "scenarios/login-second-user.json",
+            "sha256": "a5e0924ac5c3e22a4a7d397fd3396fd064cfb4783c26e2fc8079715bc2f50929"
+        },
+        {
+            "path": "scenarios/login.json",
+            "sha256": "ebfc7848e990bb8fec7394f12faeec327dd607b196e0dc30803126d169b185c2"
+        },
+        {
+            "path": "scenarios/me.json",
+            "sha256": "8c5b87bc8d554b127bca0bb5010a14c00e10cd816e32baef153b7708a0d4ce80"
+        },
+        {
+            "path": "scenarios/not-json-answer.json",
+            "sha256": "3d72c5e1ade4d7b35f44f4abe8d32e124811efe3955081edd78e74f1345a0576"
+        },
+        {
+            "path": "scenarios/parallel-calls-one-refresh.json",
+            "sha256": "438d8d509b729d8e96220d5f12489e3b672ba57e96e5af6a4dd308123feee89d"
+        },
+        {
+            "path": "scenarios/proxy-error-page.json",
+            "sha256": "fc2d90a3a6044e78c033cb50fb3c73b66fc28544f8fbe503bab54b88ab060766"
+        },
+        {
+            "path": "scenarios/rate-limited.json",
+            "sha256": "0e69bcd1efd0d1eaca40773cde5201053c9290217a6e9923df01fd2da404ef42"
+        },
+        {
+            "path": "scenarios/refresh-after-401.json",
+            "sha256": "89b3a8b9dcd9985c08eceb132cb5436d1f35e323e35a23361db276b6aed3b35f"
+        },
+        {
+            "path": "scenarios/refresh-before-expiry.json",
+            "sha256": "10111e0a61387e16a155c1b5aab95c211a27ca0f87ae5e6ae85172b0c68de1b4"
+        },
+        {
+            "path": "scenarios/refresh-refused-signs-out.json",
+            "sha256": "ab324fa4f812beda8b3fb2e2952bda5a230c01d308e017432de27b3a475c3a84"
+        },
+        {
+            "path": "scenarios/refresh-retry-also-401.json",
+            "sha256": "0e8b5b3a51136786cf95bc5d2541a10730d18764e6e0c08c71cc6ac7a93d1061"
+        },
+        {
+            "path": "scenarios/register-closed.json",
+            "sha256": "da3b21c5790960771b7a094078d1c0c4df2ca3a121dd4a55c44914c606ad963a"
+        },
+        {
+            "path": "scenarios/register-invalid.json",
+            "sha256": "48c4e53a5b9cf195db88ad86fa2529ad8762c07e62cb1e70e7ab98bd8a62e9a9"
+        },
+        {
+            "path": "scenarios/register.json",
+            "sha256": "ab16c08542a9e5ba7a4f7cace81be52f57dfb18a000b695adcead45674a144cf"
+        },
+        {
+            "path": "scenarios/reset-password-invalid-token.json",
+            "sha256": "43bfe608a34a814f4d5e349cfdffd22d1894c07ddfccece5d287fca45f394a47"
+        },
+        {
+            "path": "scenarios/reset-password-weak-password.json",
+            "sha256": "0ce8c5a6180bf5353b27af98d176361ba2bf6011fc1f49cb6fc81d5bf8c3f0fb"
+        },
+        {
+            "path": "scenarios/reset-password.json",
+            "sha256": "6819f64560717be195ebd7ac5c767f4eb523942a85061bb93025c9e29d40d318"
+        },
+        {
+            "path": "scenarios/sign-out.json",
+            "sha256": "34916470dc31171c21d5df5c8bb90076c0390c72f79d40394b11fe321574200c"
+        },
+        {
+            "path": "scenarios/update-invalid.json",
+            "sha256": "211d79f60da866870a97d9e55299eec2f5541ebd1f719bb22ad5ba3e139a5d2e"
+        },
+        {
+            "path": "scenarios/update.json",
+            "sha256": "2268d572d4602f13807c882d563b1348489595df0eba4d443a42f5efa64e25d7"
+        }
+    ]
+}

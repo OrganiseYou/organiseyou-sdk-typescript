@@ -1,0 +1,28 @@
+{
+    "id": "register-ok",
+    "description": "A registration: always 202, the person is signed in by nothing.",
+    "synthetic": false,
+    "request": {
+        "method": "POST",
+        "path": "/auth/register",
+        "query": {},
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": {
+            "name": "Cleo Newcomer",
+            "identifier": "cleo@example.test",
+            "password": "exchange-password-1"
+        }
+    },
+    "response": {
+        "status": 202,
+        "headers": {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-store, private"
+        },
+        "body": {
+            "status": "verification_sent"
+        }
+    }
+}

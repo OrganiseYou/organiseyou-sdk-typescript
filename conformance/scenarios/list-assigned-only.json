@@ -1,0 +1,49 @@
+{
+    "id": "list-assigned-only",
+    "description": "The second person lists the same endpoint and gets only their own records: \"assigned only\" is the server's, the SDK adds nothing.",
+    "now": "2026-01-01T10:00:00Z",
+    "start": {
+        "session": "stored",
+        "accessToken": "oyo_exchange_b1",
+        "accessTokenEndsAt": "2026-01-01T10:30:00Z",
+        "refreshToken": "oyr_exchange_q1",
+        "scope": "rest:read rest:write graphql:read graphql:write",
+        "user": {
+            "id": "usr_2",
+            "name": "Bob Builder",
+            "email": "bob@example.test"
+        }
+    },
+    "steps": [
+        {
+            "do": "records.list",
+            "args": {
+                "endpoint": "todos"
+            },
+            "calls": [
+                "list-user2"
+            ],
+            "expect": {
+                "result": {
+                    "total": 2,
+                    "page": 1,
+                    "perPage": 50,
+                    "hasNext": false,
+                    "itemIds": [
+                        "00000000-0000-4000-8000-000000000011",
+                        "00000000-0000-4000-8000-000000000012"
+                    ]
+                },
+                "state": {
+                    "status": "signedIn",
+                    "user": {
+                        "id": "usr_2"
+                    }
+                }
+            }
+        }
+    ],
+    "serves": {
+        "list-user2": 1
+    }
+}

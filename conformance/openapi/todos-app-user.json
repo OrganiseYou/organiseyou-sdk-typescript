@@ -1,0 +1,1673 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "OrganiseYou API",
+        "version": "1.0.0",
+        "description": "The REST API of one organization: how to sign in, and the endpoints you may use. Every call needs a credential."
+    },
+    "servers": [
+        {
+            "url": "https://api.example.test/api/acme",
+            "description": "This organization's API"
+        }
+    ],
+    "tags": [
+        {
+            "name": "Authentication",
+            "description": "Sign in, sign out, register and reset a password."
+        },
+        {
+            "name": "Application",
+            "description": "Who is signed in."
+        },
+        {
+            "name": "reports",
+            "description": "Records of the endpoint \"reports\". The entity of this endpoint is \"assigned only\": a member or an app user sees and changes only the records assigned to them, and a record assigned to nobody is not visible to them (by id it answers 404). Owners, admins and API keys see every record. This filters REST only. GraphQL is not filtered, so an app user's login reads every record there that the endpoint's switches serve. OData is for owners and admins only.",
+            "x-organiseyou-endpoint": "reports"
+        },
+        {
+            "name": "todos",
+            "description": "Records of the endpoint \"todos\". The entity of this endpoint is \"assigned only\": a member or an app user sees and changes only the records assigned to them, and a record assigned to nobody is not visible to them (by id it answers 404). Owners, admins and API keys see every record. This filters REST only. GraphQL is not filtered, so an app user's login reads every record there that the endpoint's switches serve. OData is for owners and admins only.",
+            "x-organiseyou-endpoint": "todos"
+        }
+    ],
+    "paths": {
+        "/auth/token": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "operationId": "signIn",
+                "summary": "Sign in with an e-mail address and password, or refresh a sign-in.",
+                "description": "JSON or form body. Send {\"identifier\", \"password\"} to sign in, or {\"grant_type\": \"refresh_token\", \"refresh_token\"} to refresh: a new pair is issued and the old refresh token is spent. Use the access_token as \"Authorization: Bearer <access_token>\". Throttled per address and per IP address.",
+                "security": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/LoginRequest"
+                                    },
+                                    {
+                                        "$ref": "#/components/schemas/RefreshRequest"
+                                    }
+                                ]
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/LoginRequest"
+                                    },
+                                    {
+                                        "$ref": "#/components/schemas/RefreshRequest"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The tokens.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TokenAnswer"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The body is not valid.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "examples": {
+                                    "invalid_request": {
+                                        "value": {
+                                            "error": "invalid_request",
+                                            "message": "Send the e-mail address as \"identifier\"."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Wrong credentials, or a refresh token that is spent, expired or not valid. The answer is the same for an unknown address, a wrong password and a person who is not a member.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "examples": {
+                                    "invalid_credentials": {
+                                        "value": {
+                                            "error": "invalid_credentials",
+                                            "message": "Invalid e-mail address or password."
+                                        }
+                                    },
+                                    "email_not_verified": {
+                                        "value": {
+                                            "error": "email_not_verified",
+                                            "message": "The e-mail address has not been verified yet."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No such organization.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            }
+        },
+        "/auth/revoke": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "operationId": "signOut",
+                "summary": "Sign out: end the sign-in of an access token or refresh token.",
+                "description": "Always answers 200 with an empty object, also for a token that is unknown or not of this organization.",
+                "security": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RevokeRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RevokeRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Signed out.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No such organization.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/register": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "operationId": "register",
+                "summary": "Register as a person of this organization's application.",
+                "description": "Answers 202 for every address, known or not. The person follows the link in the e-mail, then signs in. Do not send a field named \"website\".",
+                "security": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RegisterRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RegisterRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "The e-mail with the link is on its way.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "verification_sent"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "status"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The body is not valid.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "examples": {
+                                    "invalid_request": {
+                                        "value": {
+                                            "error": "invalid_request",
+                                            "message": "Send \"name\", \"identifier\" (the e-mail address) and \"password\" as text."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "The organization does not take registrations.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "examples": {
+                                    "registration_closed": {
+                                        "value": {
+                                            "error": "registration_closed",
+                                            "message": "Registration is closed for this application."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No such organization.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "A value is not valid.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "examples": {
+                                    "validation_failed": {
+                                        "value": {
+                                            "error": "validation_failed",
+                                            "message": "The password must be at least 8 characters.",
+                                            "errors": {
+                                                "password": [
+                                                    "The password must be at least 8 characters."
+                                                ]
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            }
+        },
+        "/auth/password/forgot": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "operationId": "forgotPassword",
+                "summary": "Ask for a link to set a new password.",
+                "description": "Answers 202 for every address. The e-mail goes only to an address the organization allows. The redirect_url must be one the organization allows.",
+                "security": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ForgotPasswordRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ForgotPasswordRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "The request is taken.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "reset_sent"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "status"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The body is not valid, or the organization allows no reset link to this address.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "examples": {
+                                    "invalid_request": {
+                                        "value": {
+                                            "error": "invalid_request",
+                                            "message": "Send \"identifier\" (the e-mail address) and \"redirect_url\" as text."
+                                        }
+                                    },
+                                    "invalid_redirect": {
+                                        "value": {
+                                            "error": "invalid_redirect",
+                                            "message": "This organization allows no password reset to this address."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No such organization.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            }
+        },
+        "/auth/password/reset": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "operationId": "resetPassword",
+                "summary": "Set a new password with the token of the e-mail.",
+                "description": "The token works once and ends after 30 minutes. A reset ends every sign-in of the person.",
+                "security": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ResetPasswordRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ResetPasswordRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The password is set.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "password_reset"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "status"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The body is not valid.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "examples": {
+                                    "invalid_request": {
+                                        "value": {
+                                            "error": "invalid_request",
+                                            "message": "Send \"token\" and \"password\" as text."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "The token is not valid, is used or has ended. Ask for a new link.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "examples": {
+                                    "invalid_token": {
+                                        "value": {
+                                            "error": "invalid_token",
+                                            "message": "This password reset link is not valid or has expired. Ask for a new one."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No such organization.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The new password is not valid.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "examples": {
+                                    "validation_failed": {
+                                        "value": {
+                                            "error": "validation_failed",
+                                            "message": "The password must be at least 8 characters.",
+                                            "errors": {
+                                                "password": [
+                                                    "The password must be at least 8 characters."
+                                                ]
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            }
+        },
+        "/rest/me": {
+            "get": {
+                "tags": [
+                    "Application"
+                ],
+                "operationId": "getMe",
+                "summary": "The signed-in user, their organization, role and token expiry.",
+                "description": "For a user token (from the login or the authorization-code flow). A machine credential has no user: 403 user_token_required.",
+                "security": [
+                    {
+                        "bearer": []
+                    },
+                    {
+                        "apiKey": []
+                    },
+                    {
+                        "oauth2": [
+                            "rest:read"
+                        ]
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The user of this token.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Me"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "description": "A machine credential has no user profile (user_token_required).",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "user_token_required"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            }
+        },
+        "/rest/reports/records": {
+            "get": {
+                "tags": [
+                    "reports"
+                ],
+                "x-organiseyou-endpoint": "reports",
+                "operationId": "listReportsRecords",
+                "summary": "List the records of reports.",
+                "description": "A page of records. Only the fields this endpoint maps are returned. The entity of this endpoint is \"assigned only\": a member or an app user sees and changes only the records assigned to them, and a record assigned to nobody is not visible to them (by id it answers 404). Owners, admins and API keys see every record. This filters REST only. GraphQL is not filtered, so an app user's login reads every record there that the endpoint's switches serve. OData is for owners and admins only.",
+                "security": [
+                    {
+                        "bearer": []
+                    },
+                    {
+                        "apiKey": []
+                    },
+                    {
+                        "oauth2": [
+                            "rest:read"
+                        ]
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "description": "The page number, from 1.",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "perPage",
+                        "in": "query",
+                        "required": false,
+                        "description": "Records per page. More than the maximum is a 400.",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 200,
+                            "default": 50
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A page of records.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReportsList"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            }
+        },
+        "/rest/reports/record/{id}": {
+            "get": {
+                "tags": [
+                    "reports"
+                ],
+                "x-organiseyou-endpoint": "reports",
+                "operationId": "getReportsRecord",
+                "summary": "Get one record of reports.",
+                "security": [
+                    {
+                        "bearer": []
+                    },
+                    {
+                        "apiKey": []
+                    },
+                    {
+                        "oauth2": [
+                            "rest:read"
+                        ]
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The id of the record.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The record.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Reports"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                },
+                "description": "The entity of this endpoint is \"assigned only\": a member or an app user sees and changes only the records assigned to them, and a record assigned to nobody is not visible to them (by id it answers 404). Owners, admins and API keys see every record. This filters REST only. GraphQL is not filtered, so an app user's login reads every record there that the endpoint's switches serve. OData is for owners and admins only."
+            }
+        },
+        "/rest/todos/records": {
+            "get": {
+                "tags": [
+                    "todos"
+                ],
+                "x-organiseyou-endpoint": "todos",
+                "operationId": "listTodosRecords",
+                "summary": "List the records of todos.",
+                "description": "A page of records. Only the fields this endpoint maps are returned. The entity of this endpoint is \"assigned only\": a member or an app user sees and changes only the records assigned to them, and a record assigned to nobody is not visible to them (by id it answers 404). Owners, admins and API keys see every record. This filters REST only. GraphQL is not filtered, so an app user's login reads every record there that the endpoint's switches serve. OData is for owners and admins only.",
+                "security": [
+                    {
+                        "bearer": []
+                    },
+                    {
+                        "apiKey": []
+                    },
+                    {
+                        "oauth2": [
+                            "rest:read"
+                        ]
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "description": "The page number, from 1.",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "perPage",
+                        "in": "query",
+                        "required": false,
+                        "description": "Records per page. More than the maximum is a 400.",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 200,
+                            "default": 50
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A page of records.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TodosList"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            }
+        },
+        "/rest/todos/record/{id}": {
+            "get": {
+                "tags": [
+                    "todos"
+                ],
+                "x-organiseyou-endpoint": "todos",
+                "operationId": "getTodosRecord",
+                "summary": "Get one record of todos.",
+                "security": [
+                    {
+                        "bearer": []
+                    },
+                    {
+                        "apiKey": []
+                    },
+                    {
+                        "oauth2": [
+                            "rest:read"
+                        ]
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The id of the record.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The record.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Todos"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                },
+                "description": "The entity of this endpoint is \"assigned only\": a member or an app user sees and changes only the records assigned to them, and a record assigned to nobody is not visible to them (by id it answers 404). Owners, admins and API keys see every record. This filters REST only. GraphQL is not filtered, so an app user's login reads every record there that the endpoint's switches serve. OData is for owners and admins only."
+            },
+            "put": {
+                "tags": [
+                    "todos"
+                ],
+                "x-organiseyou-endpoint": "todos",
+                "operationId": "updateTodosRecord",
+                "summary": "Change a record of todos.",
+                "description": "Send only the fields to change; the others keep their value. A read-only field is a 422. The entity of this endpoint is \"assigned only\": a member or an app user sees and changes only the records assigned to them, and a record assigned to nobody is not visible to them (by id it answers 404). Owners, admins and API keys see every record. This filters REST only. GraphQL is not filtered, so an app user's login reads every record there that the endpoint's switches serve. OData is for owners and admins only.",
+                "security": [
+                    {
+                        "bearer": []
+                    },
+                    {
+                        "apiKey": []
+                    },
+                    {
+                        "oauth2": [
+                            "rest:write"
+                        ]
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The id of the record.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TodosUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The record as it is now.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Todos"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationFailed"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "todos"
+                ],
+                "x-organiseyou-endpoint": "todos",
+                "operationId": "deleteTodosRecord",
+                "summary": "Delete a record of todos.",
+                "security": [
+                    {
+                        "bearer": []
+                    },
+                    {
+                        "apiKey": []
+                    },
+                    {
+                        "oauth2": [
+                            "rest:write"
+                        ]
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The id of the record.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The record is deleted. The body is empty."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                },
+                "description": "The entity of this endpoint is \"assigned only\": a member or an app user sees and changes only the records assigned to them, and a record assigned to nobody is not visible to them (by id it answers 404). Owners, admins and API keys see every record. This filters REST only. GraphQL is not filtered, so an app user's login reads every record there that the endpoint's switches serve. OData is for owners and admins only."
+            }
+        },
+        "/rest/todos/record": {
+            "post": {
+                "tags": [
+                    "todos"
+                ],
+                "x-organiseyou-endpoint": "todos",
+                "operationId": "createTodosRecord",
+                "summary": "Create a record of todos.",
+                "description": "Answers 201 with the new record: its id and the values you sent. When the endpoint has an assigned-to field, the answer also holds who the record is assigned to: you, unless you are an owner, an admin or an API key who named someone else or nobody.",
+                "security": [
+                    {
+                        "bearer": []
+                    },
+                    {
+                        "apiKey": []
+                    },
+                    {
+                        "oauth2": [
+                            "rest:write"
+                        ]
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TodosInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The record is created.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Todos"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthenticated"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Forbidden"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationFailed"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/RateLimited"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearer": {
+                "type": "http",
+                "scheme": "bearer",
+                "description": "An opaque access token in \"Authorization: Bearer <token>\": an \"oya_\" API key, an \"oym_\" client-credentials token or an \"oyo_\" user token (from the login below or the OAuth 2 flows)."
+            },
+            "apiKey": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "X-Api-Key",
+                "description": "An \"oya_\" API key that an owner or admin makes in Settings, Connections, sent as \"X-Api-Key: <key>\"."
+            },
+            "oauth2": {
+                "type": "oauth2",
+                "description": "The OAuth 2 server of the platform.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "https://api.example.test/oauth/token",
+                        "scopes": {
+                            "rest:read": "Read records through REST.",
+                            "rest:write": "Create, change and delete records through REST."
+                        }
+                    },
+                    "authorizationCode": {
+                        "authorizationUrl": "https://api.example.test/oauth/authorize",
+                        "tokenUrl": "https://api.example.test/oauth/token",
+                        "scopes": {
+                            "rest:read": "Read records through REST.",
+                            "rest:write": "Create, change and delete records through REST."
+                        }
+                    }
+                }
+            }
+        },
+        "schemas": {
+            "Error": {
+                "type": "object",
+                "description": "Every refusal has this shape.",
+                "properties": {
+                    "error": {
+                        "type": "string",
+                        "description": "A code, such as not_found or validation_failed."
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "errors": {
+                        "type": "object",
+                        "description": "On a 422: the messages per field.",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "required": [
+                    "error",
+                    "message"
+                ],
+                "example": {
+                    "error": "not_found",
+                    "message": "Not found."
+                }
+            },
+            "LoginRequest": {
+                "type": "object",
+                "properties": {
+                    "grant_type": {
+                        "type": "string",
+                        "enum": [
+                            "password"
+                        ],
+                        "description": "Optional; \"password\" is the default."
+                    },
+                    "identifier": {
+                        "type": "string",
+                        "maxLength": 254,
+                        "description": "The e-mail address of the account."
+                    },
+                    "password": {
+                        "type": "string",
+                        "maxLength": 1024,
+                        "writeOnly": true
+                    }
+                },
+                "required": [
+                    "identifier",
+                    "password"
+                ]
+            },
+            "RefreshRequest": {
+                "type": "object",
+                "properties": {
+                    "grant_type": {
+                        "type": "string",
+                        "enum": [
+                            "refresh_token"
+                        ]
+                    },
+                    "refresh_token": {
+                        "type": "string",
+                        "maxLength": 256,
+                        "writeOnly": true,
+                        "description": "The refresh_token of the last answer. Each is used once."
+                    }
+                },
+                "required": [
+                    "grant_type",
+                    "refresh_token"
+                ]
+            },
+            "TokenAnswer": {
+                "type": "object",
+                "properties": {
+                    "access_token": {
+                        "type": "string",
+                        "description": "Send it as \"Authorization: Bearer <access_token>\"."
+                    },
+                    "token_type": {
+                        "type": "string",
+                        "enum": [
+                            "Bearer"
+                        ]
+                    },
+                    "expires_in": {
+                        "type": "integer",
+                        "description": "Seconds until the access token ends."
+                    },
+                    "refresh_token": {
+                        "type": "string"
+                    },
+                    "scope": {
+                        "type": "string",
+                        "description": "The scopes of the token, separated by spaces."
+                    },
+                    "user": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string",
+                                "pattern": "^usr_[1-9][0-9]*$"
+                            },
+                            "name": {
+                                "type": "string"
+                            },
+                            "email": {
+                                "type": "string",
+                                "format": "email"
+                            }
+                        },
+                        "required": [
+                            "id",
+                            "name",
+                            "email"
+                        ]
+                    }
+                },
+                "required": [
+                    "access_token",
+                    "token_type",
+                    "expires_in",
+                    "refresh_token",
+                    "scope",
+                    "user"
+                ]
+            },
+            "RevokeRequest": {
+                "type": "object",
+                "properties": {
+                    "token": {
+                        "type": "string",
+                        "maxLength": 256,
+                        "writeOnly": true,
+                        "description": "An access token or refresh token of this organization's login."
+                    }
+                },
+                "required": [
+                    "token"
+                ]
+            },
+            "RegisterRequest": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "identifier": {
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 254,
+                        "description": "The e-mail address."
+                    },
+                    "password": {
+                        "type": "string",
+                        "minLength": 8,
+                        "maxLength": 255,
+                        "writeOnly": true
+                    }
+                },
+                "required": [
+                    "name",
+                    "identifier",
+                    "password"
+                ]
+            },
+            "ForgotPasswordRequest": {
+                "type": "object",
+                "properties": {
+                    "identifier": {
+                        "type": "string",
+                        "maxLength": 254,
+                        "description": "The e-mail address of the account."
+                    },
+                    "redirect_url": {
+                        "type": "string",
+                        "maxLength": 2048,
+                        "description": "The address in your application that the link of the e-mail opens. The organization must allow it."
+                    }
+                },
+                "required": [
+                    "identifier",
+                    "redirect_url"
+                ]
+            },
+            "ResetPasswordRequest": {
+                "type": "object",
+                "properties": {
+                    "token": {
+                        "type": "string",
+                        "maxLength": 256,
+                        "writeOnly": true,
+                        "description": "The token in the link of the e-mail."
+                    },
+                    "password": {
+                        "type": "string",
+                        "minLength": 8,
+                        "maxLength": 255,
+                        "writeOnly": true
+                    }
+                },
+                "required": [
+                    "token",
+                    "password"
+                ]
+            },
+            "Me": {
+                "type": "object",
+                "properties": {
+                    "user": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string",
+                                "pattern": "^usr_[1-9][0-9]*$"
+                            },
+                            "email": {
+                                "type": "string",
+                                "format": "email"
+                            },
+                            "name": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "organization": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string",
+                                "format": "uuid"
+                            },
+                            "slug": {
+                                "type": "string"
+                            },
+                            "name": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "roles": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "permissions": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "scopes": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "token": {
+                        "type": "object",
+                        "properties": {
+                            "expires_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "nullable": true
+                            }
+                        }
+                    }
+                }
+            },
+            "Reports": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "The id of the record."
+                    },
+                    "title": {
+                        "type": "string",
+                        "description": "Title",
+                        "nullable": true
+                    },
+                    "done": {
+                        "type": "boolean",
+                        "description": "Done",
+                        "nullable": true
+                    },
+                    "number": {
+                        "type": "string",
+                        "description": "Number",
+                        "nullable": true,
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "id"
+                ]
+            },
+            "ReportsInput": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "description": "Title"
+                    },
+                    "done": {
+                        "type": "boolean",
+                        "description": "Done",
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "title"
+                ]
+            },
+            "ReportsUpdate": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "description": "Title",
+                        "nullable": true
+                    },
+                    "done": {
+                        "type": "boolean",
+                        "description": "Done",
+                        "nullable": true
+                    }
+                }
+            },
+            "ReportsList": {
+                "type": "object",
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Reports"
+                        }
+                    },
+                    "pagination": {
+                        "$ref": "#/components/schemas/Pagination"
+                    }
+                },
+                "required": [
+                    "data",
+                    "pagination"
+                ]
+            },
+            "Pagination": {
+                "type": "object",
+                "required": [
+                    "total",
+                    "page",
+                    "perPage",
+                    "links"
+                ],
+                "properties": {
+                    "total": {
+                        "type": "integer",
+                        "description": "How many records match, over all pages."
+                    },
+                    "page": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "description": "The page this answer holds."
+                    },
+                    "perPage": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "description": "The page size this answer used."
+                    },
+                    "links": {
+                        "type": "object",
+                        "properties": {
+                            "first": {
+                                "type": "string"
+                            },
+                            "last": {
+                                "type": "string"
+                            },
+                            "previous": {
+                                "type": "string"
+                            },
+                            "next": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "Todos": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "The id of the record."
+                    },
+                    "title": {
+                        "type": "string",
+                        "description": "Title",
+                        "nullable": true
+                    },
+                    "done": {
+                        "type": "boolean",
+                        "description": "Done",
+                        "nullable": true
+                    },
+                    "number": {
+                        "type": "string",
+                        "description": "Number",
+                        "nullable": true,
+                        "readOnly": true
+                    },
+                    "assigned_to": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "pattern": "^usr_[1-9][0-9]*$"
+                        },
+                        "maxItems": 1,
+                        "description": "The user this is assigned to, as a list of one user id such as [\"usr_12\"]. Empty when nobody is.",
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "id"
+                ]
+            },
+            "TodosInput": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "description": "Title"
+                    },
+                    "done": {
+                        "type": "boolean",
+                        "description": "Done",
+                        "nullable": true
+                    },
+                    "assigned_to": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "pattern": "^usr_[1-9][0-9]*$"
+                        },
+                        "maxItems": 1,
+                        "description": "The user this is assigned to, as a list of one user id such as [\"usr_12\"]. Empty when nobody is.",
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "title"
+                ]
+            },
+            "TodosUpdate": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "description": "Title",
+                        "nullable": true
+                    },
+                    "done": {
+                        "type": "boolean",
+                        "description": "Done",
+                        "nullable": true
+                    },
+                    "assigned_to": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "pattern": "^usr_[1-9][0-9]*$"
+                        },
+                        "maxItems": 1,
+                        "description": "The user this is assigned to, as a list of one user id such as [\"usr_12\"]. Empty when nobody is.",
+                        "nullable": true
+                    }
+                }
+            },
+            "TodosList": {
+                "type": "object",
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Todos"
+                        }
+                    },
+                    "pagination": {
+                        "$ref": "#/components/schemas/Pagination"
+                    }
+                },
+                "required": [
+                    "data",
+                    "pagination"
+                ]
+            }
+        },
+        "responses": {
+            "BadRequest": {
+                "description": "The request is not valid, such as a perPage above the maximum (invalid_request).",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                }
+            },
+            "Unauthenticated": {
+                "description": "No credential, or one that is unknown, revoked or ended (unauthenticated).",
+                "headers": {
+                    "WWW-Authenticate": {
+                        "description": "Where to find how to sign in.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                }
+            },
+            "Forbidden": {
+                "description": "The operation is switched off for this endpoint, the credential's scope does not cover it, or this kind of user may not do it (forbidden).",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                }
+            },
+            "NotFound": {
+                "description": "There is no such endpoint or record, or this credential has no grant on the endpoint, or it belongs to another organization (not_found).",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                }
+            },
+            "ValidationFailed": {
+                "description": "A value is not valid: \"errors\" holds the messages per field (validation_failed).",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                }
+            },
+            "RateLimited": {
+                "description": "Too many requests (rate_limited).",
+                "headers": {
+                    "Retry-After": {
+                        "description": "Seconds to wait.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/Error"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "security": [
+        {
+            "bearer": []
+        },
+        {
+            "apiKey": []
+        },
+        {
+            "oauth2": [
+                "rest:read",
+                "rest:write"
+            ]
+        }
+    ]
+}

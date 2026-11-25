@@ -1,0 +1,24 @@
+{
+    "id": "delete-ok",
+    "description": "A delete: 200 and an empty body.",
+    "synthetic": false,
+    "request": {
+        "method": "DELETE",
+        "path": "/rest/todos/record/00000000-0000-4000-8000-000000000101",
+        "query": {},
+        "headers": {
+            "Authorization": "Bearer oyo_exchange_a1"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "Content-Type": "text/html; charset=utf-8",
+            "Cache-Control": "no-cache, private",
+            "RateLimit-Limit": "120",
+            "RateLimit-Remaining": "102",
+            "RateLimit-Reset": "60"
+        },
+        "bodyText": ""
+    }
+}

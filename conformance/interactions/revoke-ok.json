@@ -1,0 +1,24 @@
+{
+    "id": "revoke-ok",
+    "description": "Sign-out: the refresh token is revoked, the answer is 200 and an empty JSON object.",
+    "synthetic": false,
+    "request": {
+        "method": "POST",
+        "path": "/auth/revoke",
+        "query": {},
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": {
+            "token": "oyr_exchange_s6"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-store, private"
+        },
+        "body": {}
+    }
+}

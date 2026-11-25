@@ -1,0 +1,33 @@
+{
+    "id": "register",
+    "description": "A registration answers the status verification_sent and signs nobody in.",
+    "now": "2026-01-01T10:00:00Z",
+    "start": {
+        "session": "none"
+    },
+    "steps": [
+        {
+            "do": "auth.register",
+            "args": {
+                "name": "Cleo Newcomer",
+                "identifier": "cleo@example.test",
+                "password": "exchange-password-1"
+            },
+            "calls": [
+                "register-ok"
+            ],
+            "expect": {
+                "result": {
+                    "status": "verification_sent"
+                },
+                "state": {
+                    "status": "signedOut",
+                    "reason": "none"
+                }
+            }
+        }
+    ],
+    "serves": {
+        "register-ok": 1
+    }
+}

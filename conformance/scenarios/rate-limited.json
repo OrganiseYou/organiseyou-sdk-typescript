@@ -1,0 +1,44 @@
+{
+    "id": "rate-limited",
+    "description": "A 429 is returned as an error with retryAfterSeconds and the rate-limit numbers; nothing is retried.",
+    "now": "2026-01-01T10:00:00Z",
+    "start": {
+        "session": "stored",
+        "accessToken": "oyo_exchange_a10",
+        "accessTokenEndsAt": "2026-01-01T10:30:00Z",
+        "refreshToken": "oyr_exchange_r10",
+        "scope": "rest:read rest:write graphql:read graphql:write",
+        "user": {
+            "id": "usr_4",
+            "name": "Frank Fast",
+            "email": "frank@example.test"
+        }
+    },
+    "steps": [
+        {
+            "do": "auth.me",
+            "calls": [
+                "me-rate-limited"
+            ],
+            "expect": {
+                "error": {
+                    "kind": "http",
+                    "status": 429,
+                    "code": "rate_limited",
+                    "retryAfterSeconds": 60
+                },
+                "lastRateLimit": {
+                    "limit": 1,
+                    "remaining": 0,
+                    "reset": 60
+                },
+                "state": {
+                    "status": "signedIn"
+                }
+            }
+        }
+    ],
+    "serves": {
+        "me-rate-limited": 1
+    }
+}

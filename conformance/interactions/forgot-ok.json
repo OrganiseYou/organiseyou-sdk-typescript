@@ -1,0 +1,27 @@
+{
+    "id": "forgot-ok",
+    "description": "A reset link asked for: always 202.",
+    "synthetic": false,
+    "request": {
+        "method": "POST",
+        "path": "/auth/password/forgot",
+        "query": {},
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": {
+            "identifier": "eve@example.test",
+            "redirect_url": "https://api.example.test/reset"
+        }
+    },
+    "response": {
+        "status": 202,
+        "headers": {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-store, private"
+        },
+        "body": {
+            "status": "reset_sent"
+        }
+    }
+}
