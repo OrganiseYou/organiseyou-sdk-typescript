@@ -1,0 +1,102 @@
+name: CI
+
+# Runs on pull requests that are ready for review, and on nothing else. A draft pull request runs no job: every job
+# is billed, so work in progress is checked locally. Marking the pull request ready starts the run.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+
+# A new push to a pull request cancels the run it replaces.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Pinned image; the binary is never downloaded loose
+  GITLEAKS_IMAGE: ghcr.io/gitleaks/gitleaks:v8.21.2
+
+jobs:
+  lint:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+
+  typecheck:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      # The build must produce dist/index.js and dist/index.d.ts
+      - run: npm run build
+      - run: test -f dist/index.js && test -f dist/index.d.ts
+
+  test:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [22, 24]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+      - run: npm ci
+      - run: npm test
+
+  gitleaks:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # The commit range below needs the history of the pull request and its base
+          fetch-depth: 0
+
+      - name: Pull gitleaks
+        run: docker pull --quiet "$GITLEAKS_IMAGE"
+
+      # The job must fail on a secret: prove it each run with a planted, fake token in a scratch repository. The token
+      # is built here, so this file never holds a string that matches a rule.
+      - name: Self-test (a planted secret must be found)
+        run: |
+          scratch="$(mktemp -d)"
+          git -C "$scratch" init --quiet
+          printf 'token = "oyo_%s"\n' "$(head -c 32 /dev/urandom | base64 | tr '+/' '-_' | tr -d '=')" > "$scratch/planted.txt"
+          git -C "$scratch" add planted.txt
+          git -C "$scratch" -c user.email=ci@example.test -c user.name=ci commit --quiet -m planted
+          if docker run --rm -v "$scratch:/scan" -v "$PWD/.gitleaks.toml:/config.toml:ro" \
+              -e GIT_CONFIG_COUNT=1 -e GIT_CONFIG_KEY_0=safe.directory -e GIT_CONFIG_VALUE_0='*' "$GITLEAKS_IMAGE" \
+              git /scan --config /config.toml --redact --no-banner --exit-code 1; then
+            echo "gitleaks did not find the planted token" && exit 1
+          fi
+          echo "The planted token was found."
+
+      - name: Scan the commits of the pull request
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          docker run --rm -v "$PWD:/repo" -e GIT_CONFIG_COUNT=1 -e GIT_CONFIG_KEY_0=safe.directory -e GIT_CONFIG_VALUE_0='*' \
+            "$GITLEAKS_IMAGE" git /repo --config /repo/.gitleaks.toml --log-opts="origin/$BASE_REF..HEAD" --redact --no-banner --exit-code 1
+
+      - name: Scan the checked-out files
+        run: |
+          docker run --rm -v "$PWD:/repo" "$GITLEAKS_IMAGE" \
+            dir /repo --config /repo/.gitleaks.toml --redact --no-banner --exit-code 1

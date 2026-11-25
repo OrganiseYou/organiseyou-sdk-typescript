@@ -1,0 +1,62 @@
+# gitleaks rules for this repository: the default rules plus the prefixes of OrganiseYou credentials.
+# A real credential is its prefix followed by 43 base64url characters (32 random bytes). Documents and tests use
+# short placeholders, or build a token at run time, so no file ever holds a string that matches these rules.
+
+title = "OrganiseYou SDK"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "organiseyou-machine-token"
+description = "OrganiseYou machine-to-machine access token (oym_ + 32 random bytes, base64url)"
+regex = '''\boym_[A-Za-z0-9_-]{43}\b'''
+keywords = ["oym_"]
+
+[[rules]]
+id = "organiseyou-api-key"
+description = "OrganiseYou Connection API key (oya_ + 32 random bytes, base64url)"
+regex = '''\boya_[A-Za-z0-9_-]{43}\b'''
+keywords = ["oya_"]
+
+[[rules]]
+id = "organiseyou-client-secret"
+description = "OrganiseYou OAuth client secret (oyk_ + 32 random bytes, base64url)"
+regex = '''\boyk_[A-Za-z0-9_-]{43}\b'''
+keywords = ["oyk_"]
+
+[[rules]]
+id = "organiseyou-callback-token"
+description = "OrganiseYou workflow callback token (oyc_ + HMAC-SHA256, base64url)"
+regex = '''\boyc_[A-Za-z0-9_-]{43}\b'''
+keywords = ["oyc_"]
+
+[[rules]]
+id = "organiseyou-builder-chat-token"
+description = "OrganiseYou builder-chat session token (oyb_ + 32 random bytes, base64url)"
+regex = '''\boyb_[A-Za-z0-9_-]{43}\b'''
+keywords = ["oyb_"]
+
+[[rules]]
+id = "organiseyou-oauth-access-token"
+description = "OrganiseYou OAuth access token (oyo_ + 32 random bytes, base64url)"
+regex = '''\boyo_[A-Za-z0-9_-]{43}\b'''
+keywords = ["oyo_"]
+
+[[rules]]
+id = "organiseyou-oauth-refresh-token"
+description = "OrganiseYou OAuth refresh token (oyr_ + 32 random bytes, base64url)"
+regex = '''\boyr_[A-Za-z0-9_-]{43}\b'''
+keywords = ["oyr_"]
+
+[[rules]]
+id = "organiseyou-sanctum-token"
+description = "OrganiseYou API token (oys_ + 40 random characters + CRC32)"
+regex = '''\boys_[A-Za-z0-9]{40}[a-f0-9]{8}\b'''
+keywords = ["oys_"]
+
+[allowlist]
+description = "Not part of the working tree"
+paths = [
+    '''^\.git/''',
+]
