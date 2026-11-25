@@ -1,0 +1,83 @@
+{
+    "id": "parallel-calls-one-refresh",
+    "description": "Two calls started together with an access token that has ended request the refresh once; both then go out with the new token.",
+    "now": "2026-01-01T10:00:00Z",
+    "start": {
+        "session": "stored",
+        "accessToken": "oyo_exchange_a13",
+        "accessTokenEndsAt": "2026-01-01T09:59:00Z",
+        "refreshToken": "oyr_exchange_s3",
+        "scope": "rest:read rest:write graphql:read graphql:write",
+        "user": {
+            "id": "usr_1",
+            "name": "Ada Lovelace",
+            "email": "ada@example.test"
+        }
+    },
+    "steps": [
+        {
+            "do": "parallel",
+            "steps": [
+                {
+                    "do": "auth.me",
+                    "expect": {
+                        "result": {
+                            "user": {
+                                "id": "usr_1",
+                                "email": "ada@example.test",
+                                "name": "Ada Lovelace"
+                            },
+                            "roles": [
+                                "app_user"
+                            ],
+                            "scopes": [
+                                "rest:read",
+                                "rest:write",
+                                "graphql:read",
+                                "graphql:write"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "do": "records.list",
+                    "args": {
+                        "endpoint": "todos",
+                        "page": 1,
+                        "perPage": 2
+                    },
+                    "expect": {
+                        "result": {
+                            "total": 5,
+                            "page": 1,
+                            "perPage": 2,
+                            "hasNext": true,
+                            "itemIds": [
+                                "00000000-0000-4000-8000-000000000001",
+                                "00000000-0000-4000-8000-000000000002"
+                            ]
+                        }
+                    }
+                }
+            ],
+            "calls": [
+                "refresh-ok-3",
+                "me-after-refresh-3",
+                "list-page-1-after-refresh-3"
+            ],
+            "expect": {
+                "state": {
+                    "status": "signedIn",
+                    "user": {
+                        "id": "usr_1"
+                    }
+                }
+            }
+        }
+    ],
+    "serves": {
+        "refresh-ok-3": 1,
+        "me-after-refresh-3": 1,
+        "list-page-1-after-refresh-3": 1
+    }
+}

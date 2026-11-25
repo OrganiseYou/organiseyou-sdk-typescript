@@ -1,0 +1,36 @@
+{
+    "id": "login-ok",
+    "description": "The first sign-in of a verified person: the token pair, the scope and the user.",
+    "synthetic": false,
+    "request": {
+        "method": "POST",
+        "path": "/auth/token",
+        "query": {},
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": {
+            "identifier": "ada@example.test",
+            "password": "exchange-password-1"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-store, private"
+        },
+        "body": {
+            "access_token": "oyo_exchange_a1",
+            "token_type": "Bearer",
+            "expires_in": 1800,
+            "refresh_token": "oyr_exchange_r1",
+            "scope": "rest:read rest:write graphql:read graphql:write",
+            "user": {
+                "id": "usr_1",
+                "name": "Ada Lovelace",
+                "email": "ada@example.test"
+            }
+        }
+    }
+}

@@ -1,0 +1,34 @@
+{
+    "id": "register-invalid",
+    "description": "A password that is too short: 422 with the messages per field.",
+    "synthetic": false,
+    "request": {
+        "method": "POST",
+        "path": "/auth/register",
+        "query": {},
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": {
+            "name": "Dave Short",
+            "identifier": "dave@example.test",
+            "password": "short"
+        }
+    },
+    "response": {
+        "status": 422,
+        "headers": {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-store, private"
+        },
+        "body": {
+            "error": "validation_failed",
+            "message": "The password field must be at least 8 characters.",
+            "errors": {
+                "password": [
+                    "The password field must be at least 8 characters."
+                ]
+            }
+        }
+    }
+}

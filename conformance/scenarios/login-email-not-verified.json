@@ -1,0 +1,34 @@
+{
+    "id": "login-email-not-verified",
+    "description": "A correct password before the registration link was followed is an error with the code email_not_verified.",
+    "now": "2026-01-01T10:00:00Z",
+    "start": {
+        "session": "none"
+    },
+    "steps": [
+        {
+            "do": "auth.signIn",
+            "args": {
+                "identifier": "cleo@example.test",
+                "password": "exchange-password-1"
+            },
+            "calls": [
+                "login-email-not-verified"
+            ],
+            "expect": {
+                "error": {
+                    "kind": "http",
+                    "status": 401,
+                    "code": "email_not_verified"
+                },
+                "state": {
+                    "status": "signedOut",
+                    "reason": "none"
+                }
+            }
+        }
+    ],
+    "serves": {
+        "login-email-not-verified": 1
+    }
+}

@@ -1,0 +1,46 @@
+{
+    "id": "list-default",
+    "description": "A list with no page and no page size sends no paging query, and reads the page and page size the server answered.",
+    "now": "2026-01-01T10:00:00Z",
+    "start": {
+        "session": "stored",
+        "accessToken": "oyo_exchange_a1",
+        "accessTokenEndsAt": "2026-01-01T10:30:00Z",
+        "refreshToken": "oyr_exchange_r1",
+        "scope": "rest:read rest:write graphql:read graphql:write",
+        "user": {
+            "id": "usr_1",
+            "name": "Ada Lovelace",
+            "email": "ada@example.test"
+        }
+    },
+    "steps": [
+        {
+            "do": "records.list",
+            "args": {
+                "endpoint": "todos"
+            },
+            "calls": [
+                "list-default"
+            ],
+            "expect": {
+                "result": {
+                    "total": 5,
+                    "page": 1,
+                    "perPage": 50,
+                    "hasNext": false,
+                    "itemIds": [
+                        "00000000-0000-4000-8000-000000000001",
+                        "00000000-0000-4000-8000-000000000002",
+                        "00000000-0000-4000-8000-000000000003",
+                        "00000000-0000-4000-8000-000000000004",
+                        "00000000-0000-4000-8000-000000000005"
+                    ]
+                }
+            }
+        }
+    ],
+    "serves": {
+        "list-default": 1
+    }
+}

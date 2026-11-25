@@ -1,0 +1,23 @@
+{
+    "id": "proxy-502-html",
+    "description": "A proxy in front of the server answers with an HTML page. Written by hand: not an answer of this application.",
+    "synthetic": true,
+    "request": {
+        "method": "GET",
+        "path": "/rest/todos/records",
+        "query": {
+            "page": "1",
+            "perPage": "2"
+        },
+        "headers": {
+            "Authorization": "Bearer oyo_exchange_a11"
+        }
+    },
+    "response": {
+        "status": 502,
+        "headers": {
+            "Content-Type": "text/html; charset=utf-8"
+        },
+        "bodyText": "<html><head><title>502 Bad Gateway</title></head><body><h1>Bad Gateway</h1></body></html>"
+    }
+}

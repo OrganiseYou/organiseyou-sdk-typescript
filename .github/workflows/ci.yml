@@ -61,6 +61,18 @@ jobs:
       - run: npm ci
       - run: npm test
 
+  # The copy of the shared conformance set must be the set it says it is: no hand edit, no missing or extra file. It
+  # needs no install: the check uses only Node.js. The scenarios themselves run in the test job.
+  conformance:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - run: node scripts/conformance.mjs check
+
   gitleaks:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest

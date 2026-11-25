@@ -1,0 +1,36 @@
+{
+    "id": "update-ok",
+    "description": "An update sends only the keys to change; the answer is the whole record.",
+    "synthetic": false,
+    "request": {
+        "method": "PUT",
+        "path": "/rest/todos/record/00000000-0000-4000-8000-000000000101",
+        "query": {},
+        "headers": {
+            "Authorization": "Bearer oyo_exchange_a1",
+            "Content-Type": "application/json"
+        },
+        "body": {
+            "done": true
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-cache, private",
+            "RateLimit-Limit": "120",
+            "RateLimit-Remaining": "104",
+            "RateLimit-Reset": "60"
+        },
+        "body": {
+            "id": "00000000-0000-4000-8000-000000000101",
+            "title": "Buy oat milk",
+            "done": true,
+            "number": "8",
+            "assigned_to": [
+                "usr_1"
+            ]
+        }
+    }
+}

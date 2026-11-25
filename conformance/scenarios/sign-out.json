@@ -1,0 +1,34 @@
+{
+    "id": "sign-out",
+    "description": "Sign-out sends the refresh token to /auth/revoke, clears the store and reports signedOut.",
+    "now": "2026-01-01T10:00:00Z",
+    "start": {
+        "session": "stored",
+        "accessToken": "oyo_exchange_a9",
+        "accessTokenEndsAt": "2026-01-01T10:30:00Z",
+        "refreshToken": "oyr_exchange_s6",
+        "scope": "rest:read rest:write graphql:read graphql:write",
+        "user": {
+            "id": "usr_1",
+            "name": "Ada Lovelace",
+            "email": "ada@example.test"
+        }
+    },
+    "steps": [
+        {
+            "do": "auth.signOut",
+            "calls": [
+                "revoke-ok"
+            ],
+            "expect": {
+                "state": {
+                    "status": "signedOut",
+                    "reason": "signedOut"
+                }
+            }
+        }
+    ],
+    "serves": {
+        "revoke-ok": 1
+    }
+}

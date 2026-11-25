@@ -1,0 +1,40 @@
+{
+    "id": "refresh-refused-signs-out",
+    "description": "A refresh answered 401 (the token is spent, revoked or reused) ends the session: the store is cleared, the state is signed out with reason sessionEnded, and the waiting call fails with kind signedOut.",
+    "now": "2026-01-01T10:00:00Z",
+    "start": {
+        "session": "stored",
+        "accessToken": "oyo_exchange_a8",
+        "accessTokenEndsAt": "2026-01-01T10:00:30Z",
+        "refreshToken": "oyr_exchange_s5",
+        "scope": "rest:read rest:write graphql:read graphql:write",
+        "user": {
+            "id": "usr_1",
+            "name": "Ada Lovelace",
+            "email": "ada@example.test"
+        }
+    },
+    "steps": [
+        {
+            "do": "records.list",
+            "args": {
+                "endpoint": "todos"
+            },
+            "calls": [
+                "refresh-spent"
+            ],
+            "expect": {
+                "error": {
+                    "kind": "signedOut"
+                },
+                "state": {
+                    "status": "signedOut",
+                    "reason": "sessionEnded"
+                }
+            }
+        }
+    ],
+    "serves": {
+        "refresh-spent": 1
+    }
+}

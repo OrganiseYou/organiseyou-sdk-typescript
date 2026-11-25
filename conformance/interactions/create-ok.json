@@ -1,0 +1,34 @@
+{
+    "id": "create-ok",
+    "description": "A create: 201 with the id, the values sent and who it is assigned to. Not the whole record: `number` is absent.",
+    "synthetic": false,
+    "request": {
+        "method": "POST",
+        "path": "/rest/todos/record",
+        "query": {},
+        "headers": {
+            "Authorization": "Bearer oyo_exchange_a1",
+            "Content-Type": "application/json"
+        },
+        "body": {
+            "title": "Buy oat milk"
+        }
+    },
+    "response": {
+        "status": 201,
+        "headers": {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-cache, private",
+            "RateLimit-Limit": "120",
+            "RateLimit-Remaining": "106",
+            "RateLimit-Reset": "60"
+        },
+        "body": {
+            "id": "00000000-0000-4000-8000-000000000101",
+            "title": "Buy oat milk",
+            "assigned_to": [
+                "usr_1"
+            ]
+        }
+    }
+}

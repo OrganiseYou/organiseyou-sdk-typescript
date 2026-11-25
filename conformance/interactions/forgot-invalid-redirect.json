@@ -1,0 +1,28 @@
+{
+    "id": "forgot-invalid-redirect",
+    "description": "A reset page the organization does not allow.",
+    "synthetic": false,
+    "request": {
+        "method": "POST",
+        "path": "/auth/password/forgot",
+        "query": {},
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": {
+            "identifier": "eve@example.test",
+            "redirect_url": "https://api.example.test/elsewhere"
+        }
+    },
+    "response": {
+        "status": 400,
+        "headers": {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-store, private"
+        },
+        "body": {
+            "error": "invalid_redirect",
+            "message": "This organization allows no password reset to this address. An owner or admin adds it in Settings › Organisation › Organisation profile › Apps and API access, or registers a client app for its website: https://api.example.test/settings/org/acme/profile"
+        }
+    }
+}

@@ -28,3 +28,10 @@ stays at `0.x` until its first public release: until then the public interface m
   `Page`. `all()` reads page after page and stops by `total`, at an empty page, or one page past the last page the
   latest `total` allows. Links in a list answer are never followed.
 - A README with the quick start, the stores, the errors and paging.
+- The shared conformance set (set 1) in `conformance/`, `scripts/sync-conformance` to copy a newer one, and a CI job
+  that checks every copied file against its manifest.
+- A runner that plays every scenario of the set against the SDK with a mock transport: it fails on an unknown
+  request, counts every request exactly, and runs with the global `fetch` replaced by one that fails.
+- `npm run e2e -- --base-url <address>`, a check by hand against a local OrganiseYou: two people, a confirmation link
+  from the local Mailpit, and a record created, listed, updated and deleted. It refuses an address that is not on this
+  machine.

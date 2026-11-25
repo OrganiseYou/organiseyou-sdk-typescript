@@ -1,0 +1,31 @@
+{
+    "id": "register-closed",
+    "description": "An organization that closed registration answers 403 registration_closed.",
+    "now": "2026-01-01T10:00:00Z",
+    "start": {
+        "session": "none"
+    },
+    "steps": [
+        {
+            "do": "auth.register",
+            "args": {
+                "name": "Dave Late",
+                "identifier": "dave@example.test",
+                "password": "exchange-password-1"
+            },
+            "calls": [
+                "register-closed"
+            ],
+            "expect": {
+                "error": {
+                    "kind": "http",
+                    "status": 403,
+                    "code": "registration_closed"
+                }
+            }
+        }
+    ],
+    "serves": {
+        "register-closed": 1
+    }
+}

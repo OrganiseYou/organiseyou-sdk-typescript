@@ -1,0 +1,31 @@
+{
+    "id": "login-second-user",
+    "description": "A second verified person signs in: the answer holds their own user.",
+    "now": "2026-01-01T10:00:00Z",
+    "start": {
+        "session": "none"
+    },
+    "steps": [
+        {
+            "do": "auth.signIn",
+            "args": {
+                "identifier": "bob@example.test",
+                "password": "exchange-password-1"
+            },
+            "calls": [
+                "login-ok-user2"
+            ],
+            "expect": {
+                "state": {
+                    "status": "signedIn",
+                    "user": {
+                        "id": "usr_2"
+                    }
+                }
+            }
+        }
+    ],
+    "serves": {
+        "login-ok-user2": 1
+    }
+}

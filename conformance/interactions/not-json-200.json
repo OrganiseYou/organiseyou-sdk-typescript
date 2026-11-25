@@ -1,0 +1,20 @@
+{
+    "id": "not-json-200",
+    "description": "A 200 whose body is not JSON, such as a captive portal. Written by hand: not an answer of this application.",
+    "synthetic": true,
+    "request": {
+        "method": "GET",
+        "path": "/rest/me",
+        "query": {},
+        "headers": {
+            "Authorization": "Bearer oyo_exchange_a12"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "Content-Type": "text/plain; charset=utf-8"
+        },
+        "bodyText": "Welcome to the guest network"
+    }
+}

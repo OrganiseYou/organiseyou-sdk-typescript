@@ -1,0 +1,27 @@
+{
+    "id": "call-without-session",
+    "description": "A call with no session fails with kind signedOut and sends nothing.",
+    "now": "2026-01-01T10:00:00Z",
+    "start": {
+        "session": "none"
+    },
+    "steps": [
+        {
+            "do": "records.list",
+            "args": {
+                "endpoint": "todos"
+            },
+            "calls": [],
+            "expect": {
+                "error": {
+                    "kind": "signedOut"
+                },
+                "state": {
+                    "status": "signedOut",
+                    "reason": "none"
+                }
+            }
+        }
+    ],
+    "serves": {}
+}

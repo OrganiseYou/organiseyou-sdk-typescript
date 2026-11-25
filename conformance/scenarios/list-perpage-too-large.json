@@ -1,0 +1,39 @@
+{
+    "id": "list-perpage-too-large",
+    "description": "A page size above the maximum is a 400 invalid_request, not a clamp.",
+    "now": "2026-01-01T10:00:00Z",
+    "start": {
+        "session": "stored",
+        "accessToken": "oyo_exchange_a1",
+        "accessTokenEndsAt": "2026-01-01T10:30:00Z",
+        "refreshToken": "oyr_exchange_r1",
+        "scope": "rest:read rest:write graphql:read graphql:write",
+        "user": {
+            "id": "usr_1",
+            "name": "Ada Lovelace",
+            "email": "ada@example.test"
+        }
+    },
+    "steps": [
+        {
+            "do": "records.list",
+            "args": {
+                "endpoint": "todos",
+                "perPage": 1000
+            },
+            "calls": [
+                "list-perpage-too-large"
+            ],
+            "expect": {
+                "error": {
+                    "kind": "http",
+                    "status": 400,
+                    "code": "invalid_request"
+                }
+            }
+        }
+    ],
+    "serves": {
+        "list-perpage-too-large": 1
+    }
+}

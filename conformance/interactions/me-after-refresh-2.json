@@ -1,0 +1,48 @@
+{
+    "id": "me-after-refresh-2",
+    "description": "The call after a refresh, with the new access token.",
+    "synthetic": false,
+    "request": {
+        "method": "GET",
+        "path": "/rest/me",
+        "query": {},
+        "headers": {
+            "Authorization": "Bearer oyo_exchange_a5"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-cache, private",
+            "RateLimit-Limit": "120",
+            "RateLimit-Remaining": "100",
+            "RateLimit-Reset": "60"
+        },
+        "body": {
+            "user": {
+                "id": "usr_1",
+                "email": "ada@example.test",
+                "name": "Ada Lovelace"
+            },
+            "organization": {
+                "id": "00000000-0000-4000-8000-0000000000a0",
+                "slug": "acme",
+                "name": "Acme"
+            },
+            "roles": [
+                "app_user"
+            ],
+            "permissions": [],
+            "scopes": [
+                "rest:read",
+                "rest:write",
+                "graphql:read",
+                "graphql:write"
+            ],
+            "token": {
+                "expires_at": "2026-01-01T10:30:00.000000Z"
+            }
+        }
+    }
+}

@@ -1,0 +1,39 @@
+{
+    "id": "proxy-error-page",
+    "description": "A proxy's HTML page with status 502 is a decoding error (the body is not the server's JSON): it keeps the status 502 and has no code.",
+    "now": "2026-01-01T10:00:00Z",
+    "start": {
+        "session": "stored",
+        "accessToken": "oyo_exchange_a11",
+        "accessTokenEndsAt": "2026-01-01T10:30:00Z",
+        "refreshToken": "oyr_exchange_r11",
+        "scope": "rest:read rest:write graphql:read graphql:write",
+        "user": {
+            "id": "usr_1",
+            "name": "Ada Lovelace",
+            "email": "ada@example.test"
+        }
+    },
+    "steps": [
+        {
+            "do": "records.list",
+            "args": {
+                "endpoint": "todos",
+                "page": 1,
+                "perPage": 2
+            },
+            "calls": [
+                "proxy-502-html"
+            ],
+            "expect": {
+                "error": {
+                    "kind": "decoding",
+                    "status": 502
+                }
+            }
+        }
+    ],
+    "serves": {
+        "proxy-502-html": 1
+    }
+}

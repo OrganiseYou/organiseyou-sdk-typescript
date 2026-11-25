@@ -1,0 +1,38 @@
+{
+    "id": "update-invalid",
+    "description": "An app user may not hand a record to another person: 422.",
+    "synthetic": false,
+    "request": {
+        "method": "PUT",
+        "path": "/rest/todos/record/00000000-0000-4000-8000-000000000101",
+        "query": {},
+        "headers": {
+            "Authorization": "Bearer oyo_exchange_a1",
+            "Content-Type": "application/json"
+        },
+        "body": {
+            "assigned_to": [
+                "usr_2"
+            ]
+        }
+    },
+    "response": {
+        "status": 422,
+        "headers": {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-cache, private",
+            "RateLimit-Limit": "120",
+            "RateLimit-Remaining": "103",
+            "RateLimit-Reset": "60"
+        },
+        "body": {
+            "error": "validation_failed",
+            "message": "Only owners and admins can change who this is assigned to.",
+            "errors": {
+                "assigned_to": [
+                    "Only owners and admins can change who this is assigned to."
+                ]
+            }
+        }
+    }
+}
