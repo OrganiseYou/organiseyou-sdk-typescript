@@ -34,6 +34,15 @@ application>` copies it, checks it against its manifest and prints the set numbe
   If the SDK and a scenario disagree, do not change the runner to hide it: the set is corrected at its source, or the
   SDK is fixed.
 
+## The generator
+
+`src/generator` is the `organiseyou` command and `src/cli.ts` is its entry; it uses only Node.js and the core, and the
+package has no runtime dependency. Its tests (`test/generator`) generate code from each sample document of the
+conformance set into a temporary project and compile it with the TypeScript compiler, `--strict`. The files that must
+**not** compile are in `test/generator/fixtures/<document>/*.txt` (`.txt` so that the project's own checks skip them).
+A line that must fail ends in `// expect: TS<code> <words of the message>`, and the test requires exactly those lines,
+with that code and those words, and no other error in the file.
+
 ## The end-to-end check
 
 `npm run e2e -- --base-url <address>` runs the SDK against a **local** OrganiseYou: it registers two people, takes each

@@ -1,0 +1,7 @@
+import type { OrganiseYou } from '@organiseyou/sdk';
+import { createApi } from './organiseyou/index.js';
+
+declare const oy: OrganiseYou;
+const api = createApi(oy);
+
+void api.todos.update('00000000-0000-4000-8000-000000000001', { done: 'yes' }); // expect: TS2322 'string' is not assignable to type 'boolean

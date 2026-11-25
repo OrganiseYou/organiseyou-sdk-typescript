@@ -44,7 +44,9 @@ jobs:
       - run: npm run typecheck
       # The build must produce dist/index.js and dist/index.d.ts
       - run: npm run build
-      - run: test -f dist/index.js && test -f dist/index.d.ts
+      - run: test -f dist/index.js && test -f dist/index.d.ts && test -x dist/cli.js
+      # The command must start, with nothing installed beside the package
+      - run: node dist/cli.js --version
 
   test:
     if: github.event.pull_request.draft == false

@@ -1,0 +1,12 @@
+import type { OrganiseYou } from '@organiseyou/sdk';
+import { createApi } from './organiseyou/index.js';
+
+declare const oy: OrganiseYou;
+const api = createApi(oy);
+
+export async function change(): Promise<void> {
+  const todo = await api.todos.get('1');
+  todo.id = 'other'; // expect: TS2540 'id'
+  todo.number = '9'; // expect: TS2540 'number'
+  todo.title = 'allowed';
+}
