@@ -1,10 +1,14 @@
 # Changelog
 
 All notable changes to this package are written here. The format follows
-[Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The package has not been released yet, and its version
-stays at `0.x` until its first public release: until then the public interface may change.
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The package follows
+[Semantic Versioning](https://semver.org/): a change that breaks the public interface raises the major version.
 
 ## Unreleased
+
+## 1.0.0 - 2026-11-25
+
+The first public release, published on npm as `@organiseyou/sdk` under the MIT licence.
 
 ### Added
 

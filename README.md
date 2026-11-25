@@ -4,15 +4,12 @@ A small client for the REST API of one OrganiseYou organization: sign people in,
 the records of an endpoint by its name. It runs in browsers and in Node.js, uses the platform's `fetch`, and has no
 runtime dependency.
 
-> **Not released yet.** The package name `@organiseyou/sdk` is a working name and may change, the package is marked
-> private, and until its first public release (versions `0.x`) the public interface may change.
-
 ## Install
 
 Node.js 22 or later, or a browser with `fetch` and `AbortController`. The package is ESM only.
 
 ```bash
-npm install @organiseyou/sdk   # once it is published; the name is a working name
+npm install @organiseyou/sdk
 ```
 
 ## Quick start
