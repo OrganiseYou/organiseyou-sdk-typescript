@@ -1,6 +1,7 @@
 import { Auth } from './auth.js';
 import { type ClientOptions, organizationBaseUrl, resolveConfig } from './config.js';
 import type { RateLimit } from './error.js';
+import { Records } from './records.js';
 import { Session, SessionEngine } from './session.js';
 import { MemoryTokenStore, type TokenStore } from './store.js';
 import { Transport } from './transport.js';
@@ -15,6 +16,7 @@ export interface OrganiseYouOptions extends ClientOptions {
 /** A client for one organization's API. */
 export class OrganiseYou {
   readonly #transport: Transport;
+  readonly #engine: SessionEngine;
   /** The session: its state, changes, and `restore()`. */
   readonly session: Session;
   /** Sign-in, sign-out, registration and password reset. */
@@ -22,9 +24,14 @@ export class OrganiseYou {
 
   constructor(options: OrganiseYouOptions) {
     this.#transport = new Transport(resolveConfig(options.baseUrl, options));
-    const engine = new SessionEngine(this.#transport, options.tokenStore ?? new MemoryTokenStore());
-    this.session = new Session(engine);
-    this.auth = new Auth(engine, this.#transport);
+    this.#engine = new SessionEngine(this.#transport, options.tokenStore ?? new MemoryTokenStore());
+    this.session = new Session(this.#engine);
+    this.auth = new Auth(this.#engine, this.#transport);
+  }
+
+  /** The records of one endpoint, by its name: `list`, `all`, `get`, `create`, `update` and `delete`. */
+  records(name: string): Records {
+    return new Records(this.#engine, name);
   }
 
   /**
